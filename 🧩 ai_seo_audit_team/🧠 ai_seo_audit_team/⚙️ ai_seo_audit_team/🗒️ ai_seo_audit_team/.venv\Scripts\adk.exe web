@@ -1,0 +1,3 @@
+.venv\Scripts\adk.exe web
+Then open:
+http://127.0.0.1:8000/dev-ui/?app=ai_seo_audit_team
