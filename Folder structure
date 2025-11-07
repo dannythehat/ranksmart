@@ -1,0 +1,11 @@
+advanced_ai_agents/
+└─ multi_agent_apps/
+   └─ agent_teams/
+      └─ ai_seo_audit_team/
+          ├─ __init__.py
+          ├─ agent.py
+          ├─ requirements.txt
+          ├─ .env.example
+          ├─ README.md
+          └─ /static/
+              └─ ranksmart-logo.png  (optional)
