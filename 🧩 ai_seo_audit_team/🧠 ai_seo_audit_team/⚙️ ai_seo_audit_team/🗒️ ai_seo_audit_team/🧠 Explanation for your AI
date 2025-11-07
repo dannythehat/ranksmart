@@ -1,0 +1,20 @@
+🧠 Explanation for your AI
+
+RankSmart is a Python Google ADK multi-agent system.
+Agents:
+
+PageAuditorAgent → scrapes target page (Firecrawl MCP) + collects SERP via Google CSE.
+
+OptimizationAdvisorAgent → parses that data and generates a Markdown SEO report with a “Quick View” table (issues & priorities).
+
+ContentWriterAgent → expands the report into a ready-to-publish draft article.
+
+Router automatically converts plain URLs into “Audit <URL>”.
+
+To start locally:
+
+.venv\Scripts\adk.exe web
+
+
+Then open http://127.0.0.1:8000/dev-ui/?app=ai_seo_audit_team
+.
