@@ -1,0 +1,32 @@
+{
+  "name": "ranksmart",
+  "version": "2.0.0",
+  "description": "AI-Powered SEO Content Optimizer for iGaming Affiliates & Webmasters",
+  "main": "api/index.js",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "echo 'No build step required for static site'",
+    "deploy": "vercel --prod",
+    "test": "echo 'Tests coming soon'"
+  },
+  "keywords": [
+    "seo",
+    "ai",
+    "content-optimization",
+    "igaming",
+    "eeat"
+  ],
+  "author": "RankSmart Team",
+  "license": "MIT",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0",
+    "@google/generative-ai": "^0.1.3",
+    "axios": "^1.6.2"
+  },
+  "devDependencies": {
+    "vercel": "^33.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
