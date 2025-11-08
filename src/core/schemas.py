@@ -37,6 +37,29 @@ class ContentMode(str, Enum):
     REWRITE = "rewrite"  # Complete rewrite
 
 
+class SubmissionStatus(str, Enum):
+    """Content submission status"""
+    PENDING_REVIEW = "pending_review"
+    IN_REVIEW = "in_review"
+    NEEDS_REVISION = "needs_revision"
+    APPROVED = "approved"
+    PUBLISHED = "published"
+
+
+class UserRole(str, Enum):
+    """User roles in content team"""
+    WRITER = "writer"
+    MANAGER = "manager"
+    ADMIN = "admin"
+
+
+class IssueSeverity(str, Enum):
+    """Issue severity for annotations"""
+    CRITICAL = "critical"  # 🔴
+    WARNING = "warning"    # 🟡
+    SUGGESTION = "suggestion"  # 🟢
+
+
 # ===================================
 # E-E-A-T Scoring
 # ===================================
@@ -211,6 +234,108 @@ class BulkScanJob(BaseModel):
     results: List[PageAuditResult] = Field(default_factory=list, description="Scan results")
     created_at: datetime = Field(default_factory=datetime.now)
     completed_at: Optional[datetime] = None
+
+
+# ===================================
+# Content Manager & Writer System
+# ===================================
+
+class ContentScore(BaseModel):
+    """Multi-dimensional content scoring"""
+    seo_score: int = Field(..., ge=0, le=100, description="SEO score (keywords, meta, structure)")
+    eeat_score: int = Field(..., ge=0, le=100, description="E-E-A-T score")
+    content_quality: int = Field(..., ge=0, le=100, description="Content quality (originality, accuracy, readability)")
+    compliance_score: int = Field(..., ge=0, le=100, description="Compliance score (legislation, regulations)")
+    overall_score: int = Field(..., ge=0, le=100, description="Overall composite score")
+    
+    def calculate_overall(self):
+        """Calculate overall score as weighted average"""
+        self.overall_score = round(
+            (self.seo_score * 0.3) + 
+            (self.eeat_score * 0.25) + 
+            (self.content_quality * 0.25) + 
+            (self.compliance_score * 0.2)
+        )
+
+
+class IssueAnnotation(BaseModel):
+    """Annotated issue with educational context"""
+    issue_id: str = Field(..., description="Reference to SEOIssue ID")
+    severity: IssueSeverity = Field(..., description="Visual severity indicator")
+    explanation: str = Field(..., description="Why this is an issue (educational)")
+    fix_suggestion: str = Field(..., description="How to fix it")
+    learning_note: Optional[str] = Field(None, description="Educational note for writer")
+    applied: bool = Field(default=False, description="Whether fix was applied by manager")
+    line_number: Optional[int] = Field(None, description="Line number in content")
+    highlighted_text: Optional[str] = Field(None, description="Text to highlight")
+
+
+class WriterFeedback(BaseModel):
+    """Manager feedback to writer"""
+    submission_id: str = Field(..., description="Content submission ID")
+    manager_id: str = Field(..., description="Manager user ID")
+    overall_comment: str = Field(..., description="General feedback")
+    strengths: List[str] = Field(default_factory=list, description="What writer did well")
+    areas_for_improvement: List[str] = Field(default_factory=list, description="What to improve")
+    learning_resources: List[str] = Field(default_factory=list, description="Helpful resources/links")
+    created_at: datetime = Field(default_factory=datetime.now)
+
+
+class ContentSubmission(BaseModel):
+    """Content submission from writer"""
+    submission_id: str = Field(..., description="Unique submission ID")
+    writer_id: str = Field(..., description="Writer user ID")
+    writer_name: str = Field(..., description="Writer display name")
+    manager_id: Optional[str] = Field(None, description="Assigned manager ID")
+    title: str = Field(..., description="Article title")
+    content: str = Field(..., description="Article content (markdown/HTML)")
+    content_format: str = Field(default="markdown", description="Content format")
+    status: SubmissionStatus = Field(default=SubmissionStatus.PENDING_REVIEW)
+    scores: Optional[ContentScore] = Field(None, description="Content scores")
+    annotations: List[IssueAnnotation] = Field(default_factory=list, description="Issue annotations")
+    feedback: Optional[WriterFeedback] = Field(None, description="Manager feedback")
+    revision_count: int = Field(default=0, description="Number of revisions")
+    created_at: datetime = Field(default_factory=datetime.now)
+    updated_at: datetime = Field(default_factory=datetime.now)
+    reviewed_at: Optional[datetime] = Field(None)
+    published_at: Optional[datetime] = Field(None)
+
+
+class WriterSkillArea(BaseModel):
+    """Skill area tracking for writer"""
+    skill_name: str = Field(..., description="Skill area (e.g., 'SEO Optimization', 'E-E-A-T')")
+    current_score: int = Field(..., ge=0, le=100, description="Current skill level")
+    initial_score: int = Field(..., ge=0, le=100, description="Initial skill level")
+    improvement: int = Field(..., description="Score improvement")
+    articles_count: int = Field(..., description="Number of articles in this area")
+
+
+class WriterProgress(BaseModel):
+    """Writer improvement tracking"""
+    writer_id: str = Field(..., description="Writer user ID")
+    writer_name: str = Field(..., description="Writer display name")
+    total_submissions: int = Field(default=0, description="Total articles submitted")
+    approved_submissions: int = Field(default=0, description="Approved articles")
+    average_score: float = Field(default=0.0, description="Average overall score")
+    score_trend: List[int] = Field(default_factory=list, description="Score history (last 10)")
+    skill_areas: List[WriterSkillArea] = Field(default_factory=list, description="Skill area breakdown")
+    common_issues: Dict[str, int] = Field(default_factory=dict, description="Frequency of issue types")
+    improvement_rate: float = Field(default=0.0, description="Score improvement per article")
+    last_submission: Optional[datetime] = Field(None)
+    joined_at: datetime = Field(default_factory=datetime.now)
+
+
+class TeamAnalytics(BaseModel):
+    """Team-wide analytics for managers"""
+    total_writers: int = Field(..., description="Total number of writers")
+    active_writers: int = Field(..., description="Writers active in last 30 days")
+    total_submissions: int = Field(..., description="Total submissions")
+    pending_review: int = Field(..., description="Submissions pending review")
+    average_team_score: float = Field(..., description="Team average score")
+    top_performers: List[Dict[str, Any]] = Field(default_factory=list, description="Top performing writers")
+    improvement_leaders: List[Dict[str, Any]] = Field(default_factory=list, description="Most improved writers")
+    common_team_issues: Dict[str, int] = Field(default_factory=dict, description="Most common issues across team")
+    average_review_time: float = Field(..., description="Average review time in hours")
 
 
 # ===================================
