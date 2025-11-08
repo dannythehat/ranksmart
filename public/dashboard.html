@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - RankSmart 2.0</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body class="dashboard-body">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <span class="logo">🚀 RankSmart</span>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="sidebar-link active">
+                <span class="icon">📊</span>
+                <span>Dashboard</span>
+            </a>
+            <a href="audit.html" class="sidebar-link">
+                <span class="icon">🔍</span>
+                <span>New Audit</span>
+            </a>
+            <a href="optimize.html" class="sidebar-link">
+                <span class="icon">✨</span>
+                <span>Optimize Content</span>
+            </a>
+            <a href="#" class="sidebar-link">
+                <span class="icon">📁</span>
+                <span>My Projects</span>
+            </a>
+            <a href="#" class="sidebar-link">
+                <span class="icon">📈</span>
+                <span>Analytics</span>
+            </a>
+            <a href="settings.html" class="sidebar-link">
+                <span class="icon">⚙️</span>
+                <span>Settings</span>
+            </a>
+        </nav>
+        
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar">D</div>
+                <div class="user-details">
+                    <div class="user-name">Demo User</div>
+                    <div class="user-plan">Professional Plan</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Bar -->
+        <header class="top-bar">
+            <div class="top-bar-left">
+                <h1>Dashboard</h1>
+            </div>
+            <div class="top-bar-right">
+                <button class="btn btn-primary">
+                    <span>🔍</span> New Audit
+                </button>
+            </div>
+        </header>
+
+        <!-- Dashboard Content -->
+        <div class="dashboard-content">
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-info">
+                        <div class="stat-label">Total Audits</div>
+                        <div class="stat-value">24</div>
+                        <div class="stat-change positive">+12% this month</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">⭐</div>
+                    <div class="stat-info">
+                        <div class="stat-label">Avg Score</div>
+                        <div class="stat-value">87/100</div>
+                        <div class="stat-change positive">+15 points</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">🎯</div>
+                    <div class="stat-info">
+                        <div class="stat-label">Issues Fixed</div>
+                        <div class="stat-value">156</div>
+                        <div class="stat-change positive">+23 this week</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">📈</div>
+                    <div class="stat-info">
+                        <div class="stat-label">Scans Remaining</div>
+                        <div class="stat-value">176/200</div>
+                        <div class="stat-change neutral">Resets in 12 days</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="section-header">
+                <h2>Quick Actions</h2>
+            </div>
+            
+            <div class="quick-actions">
+                <div class="action-card">
+                    <div class="action-icon">🔍</div>
+                    <h3>Run SEO Audit</h3>
+                    <p>Analyze any page for E-E-A-T score and technical SEO issues</p>
+                    <a href="audit.html" class="btn btn-primary">Start Audit</a>
+                </div>
+                
+                <div class="action-card">
+                    <div class="action-icon">✨</div>
+                    <h3>Fix My Article</h3>
+                    <p>Surgical improvements that preserve your voice and style</p>
+                    <a href="optimize.html?mode=fix" class="btn btn-outline">Mode A</a>
+                </div>
+                
+                <div class="action-card">
+                    <div class="action-icon">🚀</div>
+                    <h3>Rewrite Content</h3>
+                    <p>Complete AI rewrite with better SEO and unique content</p>
+                    <a href="optimize.html?mode=rewrite" class="btn btn-outline">Mode B</a>
+                </div>
+            </div>
+
+            <!-- Recent Audits -->
+            <div class="section-header">
+                <h2>Recent Audits</h2>
+                <a href="#" class="section-link">View All →</a>
+            </div>
+            
+            <div class="audits-table">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>URL</th>
+                            <th>Score</th>
+                            <th>Issues</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="url-cell">
+                                    <span class="url-title">Best Online Casinos 2025</span>
+                                    <span class="url-link">example.com/best-casinos</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="score-badge score-high">92/100</div>
+                            </td>
+                            <td>
+                                <span class="badge badge-success">3 Fixed</span>
+                            </td>
+                            <td>2 hours ago</td>
+                            <td>
+                                <span class="badge badge-success">Complete</span>
+                            </td>
+                            <td>
+                                <button class="btn btn-small btn-outline">View Report</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="url-cell">
+                                    <span class="url-title">Poker Strategy Guide</span>
+                                    <span class="url-link">example.com/poker-guide</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="score-badge score-medium">76/100</div>
+                            </td>
+                            <td>
+                                <span class="badge badge-warning">8 Found</span>
+                            </td>
+                            <td>1 day ago</td>
+                            <td>
+                                <span class="badge badge-warning">In Progress</span>
+                            </td>
+                            <td>
+                                <button class="btn btn-small btn-outline">Continue</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="url-cell">
+                                    <span class="url-title">Sports Betting Tips</span>
+                                    <span class="url-link">example.com/betting-tips</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="score-badge score-low">64/100</div>
+                            </td>
+                            <td>
+                                <span class="badge badge-error">12 Found</span>
+                            </td>
+                            <td>3 days ago</td>
+                            <td>
+                                <span class="badge badge-gray">Pending</span>
+                            </td>
+                            <td>
+                                <button class="btn btn-small btn-outline">Fix Issues</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Progress Section -->
+            <div class="section-header">
+                <h2>Your Progress</h2>
+            </div>
+            
+            <div class="progress-cards">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">E-E-A-T Score Improvement</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="progress-stat">
+                            <span>Experience</span>
+                            <span class="progress-value">+18%</span>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar progress-bar-success" style="width: 85%"></div>
+                        </div>
+                        
+                        <div class="progress-stat">
+                            <span>Expertise</span>
+                            <span class="progress-value">+22%</span>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar progress-bar-success" style="width: 90%"></div>
+                        </div>
+                        
+                        <div class="progress-stat">
+                            <span>Authoritativeness</span>
+                            <span class="progress-value">+15%</span>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar progress-bar-warning" style="width: 75%"></div>
+                        </div>
+                        
+                        <div class="progress-stat">
+                            <span>Trustworthiness</span>
+                            <span class="progress-value">+25%</span>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar progress-bar-success" style="width: 95%"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Recent Activity</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="activity-item">
+                            <div class="activity-icon">✅</div>
+                            <div class="activity-content">
+                                <div class="activity-title">Audit completed</div>
+                                <div class="activity-time">2 hours ago</div>
+                            </div>
+                        </div>
+                        
+                        <div class="activity-item">
+                            <div class="activity-icon">✨</div>
+                            <div class="activity-content">
+                                <div class="activity-title">Content optimized (Mode A)</div>
+                                <div class="activity-time">5 hours ago</div>
+                            </div>
+                        </div>
+                        
+                        <div class="activity-item">
+                            <div class="activity-icon">🔍</div>
+                            <div class="activity-content">
+                                <div class="activity-title">New audit started</div>
+                                <div class="activity-time">1 day ago</div>
+                            </div>
+                        </div>
+                        
+                        <div class="activity-item">
+                            <div class="activity-icon">🚀</div>
+                            <div class="activity-content">
+                                <div class="activity-title">Content rewritten (Mode B)</div>
+                                <div class="activity-time">2 days ago</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/app.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>
