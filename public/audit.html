@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Audit Results - RankSmart 2.0</title>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-content">
+        <h1 class="logo">🚀 RankSmart 2.0</h1>
+        <nav class="nav">
+          <a href="dashboard.html" class="nav-link">Dashboard</a>
+          <a href="#" class="nav-link" id="logoutBtn">Logout</a>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Loading State -->
+    <div id="loadingState" class="loading-state">
+      <div class="spinner"></div>
+      <p>Analyzing your content...</p>
+    </div>
+
+    <!-- Audit Results -->
+    <div id="auditResults" class="audit-results" style="display: none;">
+      <!-- Overall Score Card -->
+      <div class="score-card">
+        <div class="score-circle">
+          <svg width="200" height="200">
+            <circle cx="100" cy="100" r="90" fill="none" stroke="#e0e0e0" stroke-width="12"/>
+            <circle id="scoreCircle" cx="100" cy="100" r="90" fill="none" stroke="#4CAF50" 
+                    stroke-width="12" stroke-dasharray="565.48" stroke-dashoffset="565.48"
+                    transform="rotate(-90 100 100)" stroke-linecap="round"/>
+          </svg>
+          <div class="score-text">
+            <span id="overallScore" class="score-number">0</span>
+            <span class="score-label">/100</span>
+          </div>
+        </div>
+        <h2 id="auditTitle">Page Title</h2>
+        <p id="auditUrl" class="audit-url"></p>
+        <p id="auditSummary" class="audit-summary"></p>
+      </div>
+
+      <!-- E-E-A-T Breakdown -->
+      <div class="eeat-breakdown">
+        <h3>E-E-A-T Score Breakdown</h3>
+        <div class="score-bars">
+          <div class="score-bar">
+            <div class="score-bar-header">
+              <span>Experience</span>
+              <span id="experienceScore">0/100</span>
+            </div>
+            <div class="progress-bar">
+              <div id="experienceBar" class="progress-fill" style="width: 0%"></div>
+            </div>
+          </div>
+          <div class="score-bar">
+            <div class="score-bar-header">
+              <span>Expertise</span>
+              <span id="expertiseScore">0/100</span>
+            </div>
+            <div class="progress-bar">
+              <div id="expertiseBar" class="progress-fill" style="width: 0%"></div>
+            </div>
+          </div>
+          <div class="score-bar">
+            <div class="score-bar-header">
+              <span>Authoritativeness</span>
+              <span id="authoritativenessScore">0/100</span>
+            </div>
+            <div class="progress-bar">
+              <div id="authoritativenessBar" class="progress-fill" style="width: 0%"></div>
+            </div>
+          </div>
+          <div class="score-bar">
+            <div class="score-bar-header">
+              <span>Trustworthiness</span>
+              <span id="trustworthinessScore">0/100</span>
+            </div>
+            <div class="progress-bar">
+              <div id="trustworthinessBar" class="progress-fill" style="width: 0%"></div>
+            </div>
+          </div>
+          <div class="score-bar">
+            <div class="score-bar-header">
+              <span>Technical SEO</span>
+              <span id="technicalScore">0/100</span>
+            </div>
+            <div class="progress-bar">
+              <div id="technicalBar" class="progress-fill" style="width: 0%"></div>
+            </div>
+          </div>
+          <div class="score-bar">
+            <div class="score-bar-header">
+              <span>Content Quality</span>
+              <span id="contentScore">0/100</span>
+            </div>
+            <div class="progress-bar">
+              <div id="contentBar" class="progress-fill" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Priority Fixes -->
+      <div class="priority-fixes">
+        <h3>🎯 Priority Fixes</h3>
+        <div id="fixesList" class="fixes-list"></div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-buttons">
+        <button id="fixArticleBtn" class="btn btn-primary">
+          🛠️ Fix My Article (Mode A)
+        </button>
+        <button id="rewriteBtn" class="btn btn-secondary">
+          ✨ Rewrite Content (Mode B)
+        </button>
+        <button id="exportBtn" class="btn btn-outline">
+          📥 Export Report
+        </button>
+      </div>
+    </div>
+
+    <!-- Error State -->
+    <div id="errorState" class="error-state" style="display: none;">
+      <h2>❌ Analysis Failed</h2>
+      <p id="errorMessage"></p>
+      <button onclick="window.location.href='dashboard.html'" class="btn btn-primary">
+        Back to Dashboard
+      </button>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script>
+    // Get audit ID from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const auditId = urlParams.get('id');
+
+    if (!auditId) {
+      showError('No audit ID provided');
+    } else {
+      loadAuditResults(auditId);
+    }
+
+    async function loadAuditResults(id) {
+      try {
+        // In a real implementation, fetch from API
+        // For now, get from localStorage
+        const auditData = JSON.parse(localStorage.getItem('currentAudit'));
+        
+        if (!auditData) {
+          throw new Error('Audit data not found');
+        }
+
+        displayResults(auditData);
+      } catch (error) {
+        console.error('Load audit error:', error);
+        showError(error.message);
+      }
+    }
+
+    function displayResults(data) {
+      document.getElementById('loadingState').style.display = 'none';
+      document.getElementById('auditResults').style.display = 'block';
+
+      // Overall score
+      const score = data.analysis.overall_score;
+      document.getElementById('overallScore').textContent = score;
+      animateScore(score);
+
+      // Page info
+      document.getElementById('auditTitle').textContent = data.pageData.title;
+      document.getElementById('auditUrl').textContent = data.pageData.url;
+      document.getElementById('auditSummary').textContent = data.analysis.summary;
+
+      // E-E-A-T scores
+      updateScoreBar('experience', data.analysis.experience.score);
+      updateScoreBar('expertise', data.analysis.expertise.score);
+      updateScoreBar('authoritativeness', data.analysis.authoritativeness.score);
+      updateScoreBar('trustworthiness', data.analysis.trustworthiness.score);
+      updateScoreBar('technical', data.analysis.technical_seo.score);
+      updateScoreBar('content', data.analysis.content_quality.score);
+
+      // Priority fixes
+      displayFixes(data.analysis.priority_fixes);
+    }
+
+    function animateScore(score) {
+      const circle = document.getElementById('scoreCircle');
+      const circumference = 565.48;
+      const offset = circumference - (score / 100) * circumference;
+      
+      setTimeout(() => {
+        circle.style.strokeDashoffset = offset;
+      }, 100);
+
+      // Change color based on score
+      if (score >= 80) {
+        circle.style.stroke = '#4CAF50';
+      } else if (score >= 60) {
+        circle.style.stroke = '#FFC107';
+      } else {
+        circle.style.stroke = '#F44336';
+      }
+    }
+
+    function updateScoreBar(category, score) {
+      document.getElementById(`${category}Score`).textContent = `${score}/100`;
+      document.getElementById(`${category}Bar`).style.width = `${score}%`;
+      
+      const bar = document.getElementById(`${category}Bar`);
+      if (score >= 80) {
+        bar.style.backgroundColor = '#4CAF50';
+      } else if (score >= 60) {
+        bar.style.backgroundColor = '#FFC107';
+      } else {
+        bar.style.backgroundColor = '#F44336';
+      }
+    }
+
+    function displayFixes(fixes) {
+      const list = document.getElementById('fixesList');
+      list.innerHTML = fixes.map(fix => `
+        <div class="fix-item ${fix.impact}">
+          <div class="fix-header">
+            <span class="fix-title">${fix.title}</span>
+            <span class="fix-impact">${fix.impact.toUpperCase()}</span>
+          </div>
+          <p class="fix-description">${fix.description}</p>
+          <span class="fix-category">${fix.category}</span>
+        </div>
+      `).join('');
+    }
+
+    function showError(message) {
+      document.getElementById('loadingState').style.display = 'none';
+      document.getElementById('errorState').style.display = 'block';
+      document.getElementById('errorMessage').textContent = message;
+    }
+
+    // Action buttons
+    document.getElementById('fixArticleBtn').addEventListener('click', () => {
+      alert('Mode A: Fix My Article - Coming in Week 5-6!');
+    });
+
+    document.getElementById('rewriteBtn').addEventListener('click', () => {
+      alert('Mode B: Rewrite Content - Coming in Week 5-6!');
+    });
+
+    document.getElementById('exportBtn').addEventListener('click', () => {
+      alert('Export functionality coming soon!');
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      localStorage.removeItem('authToken');
+      window.location.href = 'index.html';
+    });
+  </script>
+</body>
+</html>
