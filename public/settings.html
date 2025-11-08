@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - RankSmart</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1 class="logo">🎯 RankSmart</h1>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-text">Dashboard</span>
+                </a>
+                <a href="audit.html" class="nav-item">
+                    <span class="nav-icon">🔍</span>
+                    <span class="nav-text">SEO Audit</span>
+                </a>
+                <a href="optimize.html" class="nav-item">
+                    <span class="nav-icon">✨</span>
+                    <span class="nav-text">Optimize</span>
+                </a>
+                <a href="settings.html" class="nav-item active">
+                    <span class="nav-icon">⚙️</span>
+                    <span class="nav-text">Settings</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar">DA</div>
+                    <div class="user-details">
+                        <div class="user-name">Danny Allan</div>
+                        <div class="user-email">Pro Plan</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="content-header">
+                <div>
+                    <h1>Settings</h1>
+                    <p class="text-muted">Manage your account and preferences</p>
+                </div>
+            </div>
+
+            <!-- Settings Navigation -->
+            <div class="settings-nav mb-4">
+                <button class="settings-tab active" onclick="showTab('profile')">Profile</button>
+                <button class="settings-tab" onclick="showTab('api-keys')">API Keys</button>
+                <button class="settings-tab" onclick="showTab('integrations')">Integrations</button>
+                <button class="settings-tab" onclick="showTab('billing')">Billing</button>
+                <button class="settings-tab" onclick="showTab('preferences')">Preferences</button>
+            </div>
+
+            <!-- Profile Tab -->
+            <div id="profile-tab" class="settings-tab-content">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h2>Profile Information</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="full-name">Full Name</label>
+                            <input type="text" id="full-name" class="form-control" value="Danny Allan">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" class="form-control" value="allandanny429@gmail.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="company">Company (optional)</label>
+                            <input type="text" id="company" class="form-control" placeholder="Your company name">
+                        </div>
+                        <button class="btn btn-primary" onclick="saveProfile()">Save Changes</button>
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h2>Change Password</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="current-password">Current Password</label>
+                            <input type="password" id="current-password" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="new-password">New Password</label>
+                            <input type="password" id="new-password" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="confirm-password">Confirm New Password</label>
+                            <input type="password" id="confirm-password" class="form-control">
+                        </div>
+                        <button class="btn btn-primary" onclick="changePassword()">Update Password</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- API Keys Tab -->
+            <div id="api-keys-tab" class="settings-tab-content" style="display: none;">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h2>API Keys</h2>
+                        <p class="text-muted">Manage your external service API keys</p>
+                    </div>
+                    <div class="card-body">
+                        <!-- Gemini AI -->
+                        <div class="api-key-item">
+                            <div class="api-key-header">
+                                <h3>🤖 Google Gemini AI</h3>
+                                <span class="badge badge-success" id="gemini-status">Not Connected</span>
+                            </div>
+                            <p class="text-muted">Required for content optimization and AI features</p>
+                            <div class="form-group">
+                                <input type="password" id="gemini-key" class="form-control" placeholder="Enter your Gemini API key">
+                                <small class="form-text">Get your key from <a href="https://makersuite.google.com/app/apikey" target="_blank">Google AI Studio</a></small>
+                            </div>
+                            <button class="btn btn-secondary" onclick="saveApiKey('gemini')">Save Key</button>
+                            <button class="btn btn-outline" onclick="testApiKey('gemini')">Test Connection</button>
+                        </div>
+
+                        <!-- Firecrawl -->
+                        <div class="api-key-item">
+                            <div class="api-key-header">
+                                <h3>🔥 Firecrawl</h3>
+                                <span class="badge badge-warning" id="firecrawl-status">Not Connected</span>
+                            </div>
+                            <p class="text-muted">Required for web scraping and competitor analysis</p>
+                            <div class="form-group">
+                                <input type="password" id="firecrawl-key" class="form-control" placeholder="Enter your Firecrawl API key">
+                                <small class="form-text">Get your key from <a href="https://firecrawl.dev" target="_blank">Firecrawl Dashboard</a></small>
+                            </div>
+                            <button class="btn btn-secondary" onclick="saveApiKey('firecrawl')">Save Key</button>
+                            <button class="btn btn-outline" onclick="testApiKey('firecrawl')">Test Connection</button>
+                        </div>
+
+                        <!-- Flux AI -->
+                        <div class="api-key-item">
+                            <div class="api-key-header">
+                                <h3>🎨 Flux AI (Fal.ai)</h3>
+                                <span class="badge badge-warning" id="flux-status">Not Connected</span>
+                            </div>
+                            <p class="text-muted">Required for AI image generation</p>
+                            <div class="form-group">
+                                <input type="password" id="flux-key" class="form-control" placeholder="Enter your Fal.ai API key">
+                                <small class="form-text">Get your key from <a href="https://fal.ai/dashboard" target="_blank">Fal.ai Dashboard</a></small>
+                            </div>
+                            <button class="btn btn-secondary" onclick="saveApiKey('flux')">Save Key</button>
+                            <button class="btn btn-outline" onclick="testApiKey('flux')">Test Connection</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Integrations Tab -->
+            <div id="integrations-tab" class="settings-tab-content" style="display: none;">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h2>Integrations</h2>
+                        <p class="text-muted">Connect RankSmart with your favorite tools</p>
+                    </div>
+                    <div class="card-body">
+                        <!-- WordPress -->
+                        <div class="integration-item">
+                            <div class="integration-header">
+                                <div>
+                                    <h3>📝 WordPress</h3>
+                                    <p class="text-muted">Publish optimized content directly to WordPress</p>
+                                </div>
+                                <span class="badge badge-warning" id="wordpress-status">Not Connected</span>
+                            </div>
+                            <div class="integration-config" id="wordpress-config" style="display: none;">
+                                <div class="form-group">
+                                    <label>WordPress Site URL</label>
+                                    <input type="url" id="wordpress-url" class="form-control" placeholder="https://yoursite.com">
+                                </div>
+                                <div class="form-group">
+                                    <label>Application Password</label>
+                                    <input type="password" id="wordpress-password" class="form-control">
+                                    <small class="form-text">Generate from WordPress → Users → Profile → Application Passwords</small>
+                                </div>
+                                <button class="btn btn-secondary" onclick="saveIntegration('wordpress')">Save</button>
+                            </div>
+                            <button class="btn btn-primary" onclick="toggleIntegration('wordpress')">Configure</button>
+                        </div>
+
+                        <!-- Webflow -->
+                        <div class="integration-item">
+                            <div class="integration-header">
+                                <div>
+                                    <h3>🌊 Webflow</h3>
+                                    <p class="text-muted">Sync content with Webflow CMS</p>
+                                </div>
+                                <span class="badge badge-warning" id="webflow-status">Not Connected</span>
+                            </div>
+                            <div class="integration-config" id="webflow-config" style="display: none;">
+                                <div class="form-group">
+                                    <label>Webflow API Token</label>
+                                    <input type="password" id="webflow-token" class="form-control">
+                                    <small class="form-text">Get from Webflow → Account Settings → Integrations</small>
+                                </div>
+                                <button class="btn btn-secondary" onclick="saveIntegration('webflow')">Save</button>
+                            </div>
+                            <button class="btn btn-primary" onclick="toggleIntegration('webflow')">Configure</button>
+                        </div>
+
+                        <!-- Slack -->
+                        <div class="integration-item">
+                            <div class="integration-header">
+                                <div>
+                                    <h3>💬 Slack</h3>
+                                    <p class="text-muted">Get notifications in Slack</p>
+                                </div>
+                                <span class="badge badge-warning" id="slack-status">Not Connected</span>
+                            </div>
+                            <div class="integration-config" id="slack-config" style="display: none;">
+                                <div class="form-group">
+                                    <label>Webhook URL</label>
+                                    <input type="url" id="slack-webhook" class="form-control" placeholder="https://hooks.slack.com/services/...">
+                                    <small class="form-text">Create webhook in Slack → Apps → Incoming Webhooks</small>
+                                </div>
+                                <button class="btn btn-secondary" onclick="saveIntegration('slack')">Save</button>
+                            </div>
+                            <button class="btn btn-primary" onclick="toggleIntegration('slack')">Configure</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Billing Tab -->
+            <div id="billing-tab" class="settings-tab-content" style="display: none;">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h2>Current Plan</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="plan-info">
+                            <h3>Pro Plan</h3>
+                            <p class="plan-price">$49/month</p>
+                            <div class="plan-features">
+                                <div class="feature-item">✓ 100 audits per month</div>
+                                <div class="feature-item">✓ Unlimited optimizations</div>
+                                <div class="feature-item">✓ AI image generation</div>
+                                <div class="feature-item">✓ WordPress integration</div>
+                                <div class="feature-item">✓ Priority support</div>
+                            </div>
+                        </div>
+                        <div class="usage-stats mt-4">
+                            <h3>Usage This Month</h3>
+                            <div class="usage-item">
+                                <span>Audits</span>
+                                <div class="usage-bar">
+                                    <div class="usage-fill" style="width: 45%"></div>
+                                </div>
+                                <span>45 / 100</span>
+                            </div>
+                            <div class="usage-item">
+                                <span>Optimizations</span>
+                                <div class="usage-bar">
+                                    <div class="usage-fill" style="width: 30%"></div>
+                                </div>
+                                <span>23 / Unlimited</span>
+                            </div>
+                        </div>
+                        <div class="billing-actions mt-4">
+                            <button class="btn btn-primary" onclick="upgradePlan()">Upgrade Plan</button>
+                            <button class="btn btn-outline" onclick="manageBilling()">Manage Billing</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Billing History</h2>
+                    </div>
+                    <div class="card-body">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Description</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Invoice</th>
+                                </tr>
+                            </thead>
+                            <tbody id="billing-history">
+                                <tr>
+                                    <td>Nov 1, 2025</td>
+                                    <td>Pro Plan - Monthly</td>
+                                    <td>$49.00</td>
+                                    <td><span class="badge badge-success">Paid</span></td>
+                                    <td><a href="#" class="text-link">Download</a></td>
+                                </tr>
+                                <tr>
+                                    <td>Oct 1, 2025</td>
+                                    <td>Pro Plan - Monthly</td>
+                                    <td>$49.00</td>
+                                    <td><span class="badge badge-success">Paid</span></td>
+                                    <td><a href="#" class="text-link">Download</a></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Preferences Tab -->
+            <div id="preferences-tab" class="settings-tab-content" style="display: none;">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h2>General Preferences</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label>Default Optimization Mode</label>
+                            <select id="default-mode" class="form-control">
+                                <option value="fix">Mode A: Fix My Article</option>
+                                <option value="rewrite">Mode B: Rewrite Competitor</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Content Export Format</label>
+                            <select id="export-format" class="form-control">
+                                <option value="html">HTML</option>
+                                <option value="markdown">Markdown</option>
+                                <option value="text">Plain Text</option>
+                            </select>
+                        </div>
+                        <div class="checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="auto-save" checked>
+                                <span>Auto-save drafts</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="email-notifications" checked>
+                                <span>Email notifications</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="slack-notifications">
+                                <span>Slack notifications</span>
+                            </label>
+                        </div>
+                        <button class="btn btn-primary" onclick="savePreferences()">Save Preferences</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Danger Zone</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="danger-actions">
+                            <div class="danger-item">
+                                <div>
+                                    <h3>Export All Data</h3>
+                                    <p class="text-muted">Download all your audits, content, and settings</p>
+                                </div>
+                                <button class="btn btn-outline" onclick="exportData()">Export Data</button>
+                            </div>
+                            <div class="danger-item">
+                                <div>
+                                    <h3>Delete Account</h3>
+                                    <p class="text-muted">Permanently delete your account and all data</p>
+                                </div>
+                                <button class="btn btn-danger" onclick="deleteAccount()">Delete Account</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        // Settings tab navigation
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.settings-tab-content').forEach(tab => {
+                tab.style.display = 'none';
+            });
+            
+            // Remove active class from all buttons
+            document.querySelectorAll('.settings-tab').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName + '-tab').style.display = 'block';
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
+        }
+
+        // Profile functions
+        function saveProfile() {
+            showToast('Profile updated successfully', 'success');
+        }
+
+        function changePassword() {
+            const current = document.getElementById('current-password').value;
+            const newPass = document.getElementById('new-password').value;
+            const confirm = document.getElementById('confirm-password').value;
+            
+            if (newPass !== confirm) {
+                showToast('Passwords do not match', 'error');
+                return;
+            }
+            
+            showToast('Password updated successfully', 'success');
+        }
+
+        // API Key functions
+        function saveApiKey(service) {
+            const key = document.getElementById(service + '-key').value;
+            if (!key) {
+                showToast('Please enter an API key', 'error');
+                return;
+            }
+            
+            // Save to backend
+            showToast(`${service} API key saved`, 'success');
+            document.getElementById(service + '-status').textContent = 'Connected';
+            document.getElementById(service + '-status').className = 'badge badge-success';
+        }
+
+        function testApiKey(service) {
+            showToast(`Testing ${service} connection...`, 'info');
+            // Test API connection
+            setTimeout(() => {
+                showToast(`${service} connection successful`, 'success');
+            }, 1500);
+        }
+
+        // Integration functions
+        function toggleIntegration(service) {
+            const config = document.getElementById(service + '-config');
+            config.style.display = config.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function saveIntegration(service) {
+            showToast(`${service} integration saved`, 'success');
+            document.getElementById(service + '-status').textContent = 'Connected';
+            document.getElementById(service + '-status').className = 'badge badge-success';
+        }
+
+        // Billing functions
+        function upgradePlan() {
+            showToast('Redirecting to upgrade page...', 'info');
+        }
+
+        function manageBilling() {
+            showToast('Opening billing portal...', 'info');
+        }
+
+        // Preferences functions
+        function savePreferences() {
+            showToast('Preferences saved', 'success');
+        }
+
+        function exportData() {
+            showToast('Preparing data export...', 'info');
+        }
+
+        function deleteAccount() {
+            if (confirm('Are you sure? This action cannot be undone.')) {
+                showToast('Account deletion initiated', 'warning');
+            }
+        }
+
+        // Toast notification helper
+        function showToast(message, type) {
+            console.log(`[${type}] ${message}`);
+            // TODO: Implement actual toast UI
+        }
+    </script>
+</body>
+</html>
