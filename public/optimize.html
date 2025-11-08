@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Content Optimization - RankSmart</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1 class="logo">🎯 RankSmart</h1>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-text">Dashboard</span>
+                </a>
+                <a href="audit.html" class="nav-item">
+                    <span class="nav-icon">🔍</span>
+                    <span class="nav-text">SEO Audit</span>
+                </a>
+                <a href="optimize.html" class="nav-item active">
+                    <span class="nav-icon">✨</span>
+                    <span class="nav-text">Optimize</span>
+                </a>
+                <a href="settings.html" class="nav-item">
+                    <span class="nav-icon">⚙️</span>
+                    <span class="nav-text">Settings</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar">DA</div>
+                    <div class="user-details">
+                        <div class="user-name">Danny Allan</div>
+                        <div class="user-email">Pro Plan</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="content-header">
+                <div>
+                    <h1>Content Optimization</h1>
+                    <p class="text-muted">AI-powered content improvement and rewriting</p>
+                </div>
+            </div>
+
+            <!-- Mode Selection -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h2>Choose Optimization Mode</h2>
+                </div>
+                <div class="card-body">
+                    <div class="mode-selector">
+                        <div class="mode-option" id="mode-fix" onclick="selectMode('fix')">
+                            <div class="mode-icon">🔧</div>
+                            <h3>Mode A: Fix My Article</h3>
+                            <p>Surgical improvements while preserving your voice and style</p>
+                            <ul class="mode-features">
+                                <li>✓ Fix SEO issues</li>
+                                <li>✓ Improve readability</li>
+                                <li>✓ Enhance E-E-A-T</li>
+                                <li>✓ Keep your voice</li>
+                            </ul>
+                        </div>
+                        <div class="mode-option" id="mode-rewrite" onclick="selectMode('rewrite')">
+                            <div class="mode-icon">✍️</div>
+                            <h3>Mode B: Rewrite Competitor</h3>
+                            <p>Complete AI rewrite with unique content and images</p>
+                            <ul class="mode-features">
+                                <li>✓ 100% unique content</li>
+                                <li>✓ AI-generated images</li>
+                                <li>✓ SEO optimized</li>
+                                <li>✓ Plagiarism-free</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input Section -->
+            <div class="card mb-4" id="input-section" style="display: none;">
+                <div class="card-header">
+                    <h2 id="input-title">Enter Content</h2>
+                </div>
+                <div class="card-body">
+                    <!-- URL Input (for Mode B) -->
+                    <div id="url-input-group" style="display: none;">
+                        <div class="form-group">
+                            <label for="competitor-url">Competitor URL</label>
+                            <input type="url" id="competitor-url" class="form-control" placeholder="https://competitor.com/article">
+                            <small class="form-text">Enter the URL of the article you want to rewrite</small>
+                        </div>
+                        <button class="btn btn-secondary" onclick="scrapeUrl()">
+                            <span id="scrape-btn-text">Scrape Content</span>
+                            <span id="scrape-spinner" class="spinner" style="display: none;"></span>
+                        </button>
+                    </div>
+
+                    <!-- Content Input -->
+                    <div class="form-group mt-3">
+                        <label for="content-input">Content</label>
+                        <textarea id="content-input" class="form-control" rows="15" placeholder="Paste your content here or scrape from URL above..."></textarea>
+                        <div class="content-stats">
+                            <span id="word-count">0 words</span>
+                            <span id="char-count">0 characters</span>
+                        </div>
+                    </div>
+
+                    <!-- Target Keywords -->
+                    <div class="form-group">
+                        <label for="target-keywords">Target Keywords (optional)</label>
+                        <input type="text" id="target-keywords" class="form-control" placeholder="keyword1, keyword2, keyword3">
+                        <small class="form-text">Comma-separated keywords to optimize for</small>
+                    </div>
+
+                    <!-- Optimization Options -->
+                    <div class="optimization-options">
+                        <h3>Optimization Settings</h3>
+                        <div class="checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="opt-seo" checked>
+                                <span>SEO Optimization</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="opt-readability" checked>
+                                <span>Improve Readability</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="opt-eeat" checked>
+                                <span>Enhance E-E-A-T</span>
+                            </label>
+                            <label class="checkbox-label" id="opt-images-group" style="display: none;">
+                                <input type="checkbox" id="opt-images" checked>
+                                <span>Generate AI Images</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary btn-lg mt-3" onclick="startOptimization()">
+                        <span id="optimize-btn-text">Start Optimization</span>
+                        <span id="optimize-spinner" class="spinner" style="display: none;"></span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div id="results-section" style="display: none;">
+                <!-- Progress -->
+                <div class="card mb-4" id="progress-card">
+                    <div class="card-body">
+                        <h3>Optimizing Content...</h3>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+                        </div>
+                        <p class="text-muted mt-2" id="progress-text">Analyzing content...</p>
+                    </div>
+                </div>
+
+                <!-- Comparison View -->
+                <div class="card mb-4" id="comparison-card" style="display: none;">
+                    <div class="card-header">
+                        <h2>Optimization Results</h2>
+                        <div class="card-actions">
+                            <button class="btn btn-secondary" onclick="toggleView('side-by-side')">Side by Side</button>
+                            <button class="btn btn-secondary" onclick="toggleView('diff')">Show Changes</button>
+                            <button class="btn btn-primary" onclick="exportContent()">Export</button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <!-- Score Improvement -->
+                        <div class="score-comparison mb-4">
+                            <div class="score-item">
+                                <div class="score-label">Before</div>
+                                <div class="score-value" id="score-before">--</div>
+                            </div>
+                            <div class="score-arrow">→</div>
+                            <div class="score-item">
+                                <div class="score-label">After</div>
+                                <div class="score-value score-improved" id="score-after">--</div>
+                            </div>
+                            <div class="score-item">
+                                <div class="score-label">Improvement</div>
+                                <div class="score-value score-delta" id="score-delta">--</div>
+                            </div>
+                        </div>
+
+                        <!-- Content Comparison -->
+                        <div id="side-by-side-view" class="content-comparison">
+                            <div class="content-column">
+                                <h3>Original</h3>
+                                <div class="content-preview" id="original-content"></div>
+                            </div>
+                            <div class="content-column">
+                                <h3>Optimized</h3>
+                                <div class="content-preview" id="optimized-content"></div>
+                            </div>
+                        </div>
+
+                        <!-- Diff View -->
+                        <div id="diff-view" style="display: none;">
+                            <div class="diff-content" id="diff-content"></div>
+                        </div>
+
+                        <!-- Changes Summary -->
+                        <div class="changes-summary mt-4">
+                            <h3>What Changed?</h3>
+                            <div id="changes-list"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Export Options -->
+                <div class="card" id="export-card" style="display: none;">
+                    <div class="card-header">
+                        <h2>Export Options</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="export-options">
+                            <button class="btn btn-secondary" onclick="exportAs('html')">Export as HTML</button>
+                            <button class="btn btn-secondary" onclick="exportAs('markdown')">Export as Markdown</button>
+                            <button class="btn btn-secondary" onclick="exportAs('text')">Export as Text</button>
+                            <button class="btn btn-secondary" onclick="exportAs('json')">Export as JSON</button>
+                        </div>
+                        <div class="integration-options mt-3">
+                            <h3>Publish To</h3>
+                            <button class="btn btn-outline" onclick="publishTo('wordpress')">
+                                📝 WordPress
+                            </button>
+                            <button class="btn btn-outline" onclick="publishTo('webflow')">
+                                🌊 Webflow
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/optimize.js"></script>
+</body>
+</html>
