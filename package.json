@@ -2,6 +2,7 @@
   "name": "ranksmart",
   "version": "2.0.0",
   "description": "AI-Powered SEO Content Optimizer for iGaming Affiliates & Webmasters",
+  "type": "module",
   "main": "api/index.js",
   "scripts": {
     "dev": "vercel dev",
@@ -20,7 +21,8 @@
   "license": "MIT",
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",
-    "@google/generative-ai": "^0.1.3",
+    "@google/generative-ai": "^0.21.0",
+    "@mendable/firecrawl-js": "^1.0.0",
     "axios": "^1.6.2"
   },
   "devDependencies": {
