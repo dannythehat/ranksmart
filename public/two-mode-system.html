@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RankSmart - Two-Mode Content System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .mode-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .mode-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .mode-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .mode-card.active {
+            border: 3px solid #667eea;
+            transform: scale(1.02);
+        }
+
+        .mode-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        .mode-card h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.8em;
+        }
+
+        .mode-card p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .mode-features {
+            list-style: none;
+            margin-top: 20px;
+        }
+
+        .mode-features li {
+            padding: 8px 0;
+            color: #555;
+            display: flex;
+            align-items: center;
+        }
+
+        .mode-features li:before {
+            content: "✓";
+            color: #667eea;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .workspace {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: none;
+        }
+
+        .workspace.active {
+            display: block;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .input-group input,
+        .input-group textarea,
+        .input-group select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus,
+        .input-group textarea:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .input-group textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            display: none;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .results {
+            margin-top: 30px;
+            display: none;
+        }
+
+        .results.active {
+            display: block;
+        }
+
+        .result-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .result-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .score-badge {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .score-good {
+            background: #4caf50;
+            color: white;
+        }
+
+        .score-medium {
+            background: #ff9800;
+            color: white;
+        }
+
+        .score-poor {
+            background: #f44336;
+            color: white;
+        }
+
+        .fix-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .fix-item h4 {
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .fix-item p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .mode-selector {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 RankSmart</h1>
+            <p>Two-Mode Content System - Powered by ChatGPT-5 Brain</p>
+        </div>
+
+        <div class="mode-selector">
+            <div class="mode-card" onclick="selectMode('mode1')">
+                <div class="mode-icon">🚀</div>
+                <h2>Mode 1: Competitor Analysis</h2>
+                <p>Analyze competitor content and generate better articles that outrank them</p>
+                <ul class="mode-features">
+                    <li>Scan top 10 competitors</li>
+                    <li>Extract content gaps</li>
+                    <li>Generate superior content</li>
+                    <li>SEO-optimized output</li>
+                </ul>
+            </div>
+
+            <div class="mode-card" onclick="selectMode('mode2')">
+                <div class="mode-icon">🔍</div>
+                <h2>Mode 2: Self-Audit</h2>
+                <p>Analyze your own content and get actionable fixes to improve rankings</p>
+                <ul class="mode-features">
+                    <li>Deep content analysis</li>
+                    <li>Identify SEO issues</li>
+                    <li>Actionable fix suggestions</li>
+                    <li>One-click improvements</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Mode 1 Workspace -->
+        <div id="mode1-workspace" class="workspace">
+            <h2>🚀 Mode 1: Competitor Content Generator</h2>
+            <form id="mode1-form">
+                <div class="input-group">
+                    <label for="keyword">Target Keyword *</label>
+                    <input type="text" id="keyword" placeholder="e.g., best online casinos 2025" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="competitor-url">Competitor URL (Optional)</label>
+                    <input type="url" id="competitor-url" placeholder="https://competitor.com/article">
+                </div>
+
+                <div class="input-group">
+                    <label for="style">Content Style</label>
+                    <select id="style">
+                        <option value="professional">Professional</option>
+                        <option value="casual">Casual</option>
+                        <option value="technical">Technical</option>
+                        <option value="conversational">Conversational</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn">Generate Better Content</button>
+            </form>
+
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Analyzing competitors and generating content...</p>
+            </div>
+
+            <div class="results">
+                <div class="result-section">
+                    <h3>Generated Content</h3>
+                    <div id="mode1-content"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mode 2 Workspace -->
+        <div id="mode2-workspace" class="workspace">
+            <h2>🔍 Mode 2: Self-Audit & Fixes</h2>
+            <form id="mode2-form">
+                <div class="input-group">
+                    <label for="page-url">Your Page URL *</label>
+                    <input type="url" id="page-url" placeholder="https://yoursite.com/article" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="page-content">Page Content *</label>
+                    <textarea id="page-content" placeholder="Paste your article content here..." required></textarea>
+                </div>
+
+                <button type="submit" class="btn">Analyze & Get Fixes</button>
+            </form>
+
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Analyzing your content and generating fixes...</p>
+            </div>
+
+            <div class="results">
+                <div class="result-section">
+                    <h3>SEO Score</h3>
+                    <div id="mode2-score"></div>
+                </div>
+
+                <div class="result-section">
+                    <h3>Recommended Fixes</h3>
+                    <div id="mode2-fixes"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentMode = null;
+
+        function selectMode(mode) {
+            currentMode = mode;
+            
+            // Update card styles
+            document.querySelectorAll('.mode-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+
+            // Show workspace
+            document.querySelectorAll('.workspace').forEach(workspace => {
+                workspace.classList.remove('active');
+            });
+            document.getElementById(`${mode}-workspace`).classList.add('active');
+        }
+
+        // Mode 1 Form Handler
+        document.getElementById('mode1-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const keyword = document.getElementById('keyword').value;
+            const competitorUrl = document.getElementById('competitor-url').value;
+            const style = document.getElementById('style').value;
+
+            // Show loading
+            document.querySelector('#mode1-workspace .loading').classList.add('active');
+            document.querySelector('#mode1-workspace .results').classList.remove('active');
+
+            try {
+                // First, get SERP data
+                const serpResponse = await fetch('/api/audit/serp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ keyword })
+                });
+
+                const serpData = await serpResponse.json();
+
+                // Then generate content
+                const response = await fetch('/api/content/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        keyword,
+                        serpData: serpData.data,
+                        targetUrl: competitorUrl,
+                        style
+                    })
+                });
+
+                const result = await response.json();
+
+                // Display results
+                displayMode1Results(result.data);
+
+            } catch (error) {
+                alert('Error: ' + error.message);
+            } finally {
+                document.querySelector('#mode1-workspace .loading').classList.remove('active');
+            }
+        });
+
+        // Mode 2 Form Handler
+        document.getElementById('mode2-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const url = document.getElementById('page-url').value;
+            const content = document.getElementById('page-content').value;
+
+            // Show loading
+            document.querySelector('#mode2-workspace .loading').classList.add('active');
+            document.querySelector('#mode2-workspace .results').classList.remove('active');
+
+            try {
+                const response = await fetch('/api/audit/self-scan', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url, content })
+                });
+
+                const result = await response.json();
+
+                // Display results
+                displayMode2Results(result.data);
+
+            } catch (error) {
+                alert('Error: ' + error.message);
+            } finally {
+                document.querySelector('#mode2-workspace .loading').classList.remove('active');
+            }
+        });
+
+        function displayMode1Results(data) {
+            const contentDiv = document.getElementById('mode1-content');
+            
+            contentDiv.innerHTML = `
+                <h4>${data.content.title}</h4>
+                <p><strong>Meta Description:</strong> ${data.content.metaDescription}</p>
+                <p><strong>Word Count:</strong> ${data.content.wordCount} words</p>
+                <p><strong>SEO Score:</strong> <span class="score-badge score-good">${data.seo.estimatedScore}/100</span></p>
+                <hr style="margin: 20px 0;">
+                <div style="white-space: pre-wrap;">${data.content.body}</div>
+            `;
+
+            document.querySelector('#mode1-workspace .results').classList.add('active');
+        }
+
+        function displayMode2Results(data) {
+            const scoreDiv = document.getElementById('mode2-score');
+            const fixesDiv = document.getElementById('mode2-fixes');
+
+            const scoreClass = data.current.score >= 80 ? 'score-good' : 
+                              data.current.score >= 60 ? 'score-medium' : 'score-poor';
+
+            scoreDiv.innerHTML = `
+                <p>Current Score: <span class="score-badge ${scoreClass}">${data.current.score}/100</span></p>
+                <p>Potential Score: <span class="score-badge score-good">${data.potential.score}/100</span></p>
+            `;
+
+            fixesDiv.innerHTML = data.fixes.critical.map(fix => `
+                <div class="fix-item">
+                    <h4>${fix.title}</h4>
+                    <p>${fix.description}</p>
+                    <p><strong>Impact:</strong> ${fix.impact}</p>
+                </div>
+            `).join('');
+
+            document.querySelector('#mode2-workspace .results').classList.add('active');
+        }
+    </script>
+</body>
+</html>
