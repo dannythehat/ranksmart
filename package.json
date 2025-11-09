@@ -1,21 +1,26 @@
 {
   "name": "ranksmart",
   "version": "2.0.0",
-  "description": "AI-Powered SEO Content Optimizer for iGaming Affiliates & Webmasters",
+  "description": "AI-Powered SEO Content Optimizer - Powered by ChatGPT-5 Brain 🧠",
   "type": "module",
   "main": "api/index.js",
   "scripts": {
     "dev": "vercel dev",
     "build": "echo 'No build step required for static site'",
     "deploy": "vercel --prod",
-    "test": "echo 'Tests coming soon'"
+    "test": "node tests/mode1-test.js",
+    "test:brain": "node tests/ai-brain-test.js"
   },
   "keywords": [
     "seo",
     "ai",
+    "chatgpt-5",
+    "gpt-4o",
     "content-optimization",
     "igaming",
-    "eeat"
+    "eeat",
+    "content-generation",
+    "seo-audit"
   ],
   "author": "RankSmart Team",
   "license": "MIT",
@@ -23,6 +28,7 @@
     "@supabase/supabase-js": "^2.39.0",
     "@google/generative-ai": "^0.21.0",
     "@mendable/firecrawl-js": "^1.0.0",
+    "openai": "^4.67.3",
     "axios": "^1.6.2"
   },
   "devDependencies": {
