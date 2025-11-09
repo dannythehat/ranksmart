@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Competitor Content Generator - RankSmart 2.0</title>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <style>
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .hero-section {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 16px;
+      padding: 3rem;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .hero-section h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .hero-section p {
+      font-size: 1.2rem;
+      opacity: 0.9;
+    }
+
+    .input-section {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: #374151;
+    }
+
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 0.875rem;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: border-color 0.3s;
+    }
+
+    .form-group input:focus, .form-group select:focus {
+      outline: none;
+      border-color: #6366f1;
+    }
+
+    .btn {
+      padding: 0.875rem 1.75rem;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      border: none;
+      font-size: 1rem;
+    }
+
+    .btn-primary {
+      background: #6366f1;
+      color: white;
+      width: 100%;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: #4f46e5;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .loading-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      display: none;
+    }
+
+    .spinner {
+      width: 60px;
+      height: 60px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #6366f1;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 1.5rem;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .results-section {
+      display: none;
+    }
+
+    .content-preview {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .content-preview h2 {
+      color: #1f2937;
+      margin-bottom: 1.5rem;
+    }
+
+    .preview-title {
+      font-size: 2rem;
+      color: #1f2937;
+      margin-bottom: 1rem;
+    }
+
+    .preview-meta {
+      color: #6b7280;
+      font-size: 0.95rem;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid #e5e7eb;
+    }
+
+    .preview-body {
+      line-height: 1.8;
+      color: #374151;
+    }
+
+    .preview-body h2 {
+      font-size: 1.75rem;
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+      color: #1f2937;
+    }
+
+    .preview-body h3 {
+      font-size: 1.5rem;
+      margin-top: 1.5rem;
+      margin-bottom: 0.75rem;
+      color: #374151;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border-left: 4px solid #6366f1;
+    }
+
+    .stat-label {
+      font-size: 0.875rem;
+      color: #6b7280;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #1f2937;
+    }
+
+    .stat-value.positive {
+      color: #10b981;
+    }
+
+    .export-section {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    .export-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 1.5rem;
+    }
+
+    .btn-secondary {
+      background: #10b981;
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background: #059669;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+    }
+
+    .btn-outline {
+      background: white;
+      color: #6366f1;
+      border: 2px solid #6366f1;
+    }
+
+    .btn-outline:hover {
+      background: #6366f1;
+      color: white;
+    }
+
+    .error-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      display: none;
+    }
+
+    .error-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+    }
+
+    .error-title {
+      font-size: 1.5rem;
+      color: #ef4444;
+      margin-bottom: 1rem;
+    }
+
+    .error-message {
+      color: #6b7280;
+      margin-bottom: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+      <h1 style="font-size: 1.5rem; color: #1f2937;">🚀 RankSmart 2.0</h1>
+      <nav style="display: flex; gap: 1.5rem;">
+        <a href="dashboard.html" style="color: #6366f1; text-decoration: none; font-weight: 600;">Dashboard</a>
+        <a href="serp-analysis.html" style="color: #6b7280; text-decoration: none;">SERP Analysis</a>
+      </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <div class="hero-section">
+      <h1>✨ Competitor Content Generator</h1>
+      <p>Analyze top competitors and generate better, unique content that ranks higher</p>
+    </div>
+
+    <!-- Input Section -->
+    <div id="inputSection" class="input-section">
+      <h2 style="margin-bottom: 1.5rem; color: #1f2937;">Generate Content from Competitors</h2>
+      
+      <form id="generateForm">
+        <div class="form-group">
+          <label for="keyword">Target Keyword *</label>
+          <input 
+            type="text" 
+            id="keyword" 
+            placeholder="e.g., best online casinos 2025"
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="style">Content Style</label>
+          <select id="style">
+            <option value="professional">Professional</option>
+            <option value="casual">Casual & Friendly</option>
+            <option value="authoritative">Authoritative & Expert</option>
+            <option value="conversational">Conversational</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="targetUrl">Your Target URL (Optional)</label>
+          <input 
+            type="url" 
+            id="targetUrl" 
+            placeholder="https://yoursite.com/article"
+          >
+          <small style="color: #6b7280; display: block; margin-top: 0.5rem;">
+            Provide your URL to compare against competitors
+          </small>
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="generateBtn">
+          🚀 Analyze & Generate Content
+        </button>
+      </form>
+    </div>
+
+    <!-- Loading State -->
+    <div id="loadingState" class="loading-state">
+      <div class="spinner"></div>
+      <h2>Analyzing Competitors & Generating Content...</h2>
+      <p style="color: #6b7280; margin-top: 0.5rem;">This may take 30-60 seconds</p>
+      <p style="color: #6b7280; margin-top: 0.5rem;">
+        <strong>Step 1:</strong> Scraping top 10 competitors...<br>
+        <strong>Step 2:</strong> Analyzing content patterns...<br>
+        <strong>Step 3:</strong> Generating unique content...
+      </p>
+    </div>
+
+    <!-- Results Section -->
+    <div id="resultsSection" class="results-section">
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Generated Word Count</div>
+          <div class="stat-value" id="wordCount">0</div>
+        </div>
+        <div class="stat-card" style="border-left-color: #10b981;">
+          <div class="stat-label">Estimated SEO Score</div>
+          <div class="stat-value positive" id="seoScore">0</div>
+        </div>
+        <div class="stat-card" style="border-left-color: #f59e0b;">
+          <div class="stat-label">vs Avg Competitor</div>
+          <div class="stat-value" id="wordDiff">+0</div>
+        </div>
+        <div class="stat-card" style="border-left-color: #ef4444;">
+          <div class="stat-label">Reading Time</div>
+          <div class="stat-value" id="readingTime">0 min</div>
+        </div>
+      </div>
+
+      <!-- Content Preview -->
+      <div class="content-preview">
+        <h2>📝 Generated Content</h2>
+        <div class="preview-title" id="previewTitle"></div>
+        <div class="preview-meta" id="previewMeta"></div>
+        <div class="preview-body" id="previewBody"></div>
+      </div>
+
+      <!-- Export Section -->
+      <div class="export-section">
+        <h2>📥 Export Your Content</h2>
+        <p style="color: #6b7280; margin-top: 0.5rem;">Download in your preferred format</p>
+        <div class="export-buttons">
+          <button class="btn btn-primary" onclick="exportContent('copy')">
+            📋 Copy to Clipboard
+          </button>
+          <button class="btn btn-secondary" onclick="exportContent('html')">
+            🌐 Download HTML
+          </button>
+          <button class="btn btn-outline" onclick="exportContent('markdown')">
+            📄 Download Markdown
+          </button>
+          <button class="btn btn-outline" onclick="exportContent('wordpress')">
+            📰 Export to WordPress
+          </button>
+          <button class="btn btn-outline" onclick="window.location.href='dashboard.html'">
+            ← Back to Dashboard
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error State -->
+    <div id="errorState" class="error-state">
+      <div class="error-icon">❌</div>
+      <h2 class="error-title">Generation Failed</h2>
+      <p class="error-message" id="errorMessage"></p>
+      <button onclick="location.reload()" class="btn btn-primary">
+        Try Again
+      </button>
+    </div>
+  </div>
+
+  <script>
+    let generatedData = null;
+
+    document.getElementById('generateForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      await generateContent();
+    });
+
+    async function generateContent() {
+      const keyword = document.getElementById('keyword').value.trim();
+      const style = document.getElementById('style').value;
+      const targetUrl = document.getElementById('targetUrl').value.trim();
+
+      if (!keyword) {
+        alert('Please enter a target keyword');
+        return;
+      }
+
+      // Show loading state
+      document.getElementById('inputSection').style.display = 'none';
+      document.getElementById('loadingState').style.display = 'block';
+
+      try {
+        // Step 1: Get SERP data
+        console.log('Step 1: Fetching SERP data...');
+        const serpResponse = await fetch('/api/audit/serp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ keyword, targetUrl: targetUrl || undefined })
+        });
+
+        if (!serpResponse.ok) {
+          throw new Error('Failed to fetch SERP data');
+        }
+
+        const serpResult = await serpResponse.json();
+        if (!serpResult.success) {
+          throw new Error(serpResult.message || 'SERP analysis failed');
+        }
+
+        // Step 2: Generate content
+        console.log('Step 2: Generating content...');
+        const generateResponse = await fetch('/api/content/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            keyword,
+            serpData: serpResult.data,
+            targetUrl: targetUrl || undefined,
+            style
+          })
+        });
+
+        if (!generateResponse.ok) {
+          throw new Error('Failed to generate content');
+        }
+
+        const generateResult = await generateResponse.json();
+        if (!generateResult.success) {
+          throw new Error(generateResult.message || 'Content generation failed');
+        }
+
+        generatedData = generateResult.data;
+        displayResults(generateResult.data);
+
+      } catch (error) {
+        console.error('Generation error:', error);
+        showError(error.message || 'Failed to generate content. Please try again.');
+      }
+    }
+
+    function displayResults(data) {
+      document.getElementById('loadingState').style.display = 'none';
+      document.getElementById('resultsSection').style.display = 'block';
+
+      // Stats
+      document.getElementById('wordCount').textContent = data.content.wordCount.toLocaleString();
+      document.getElementById('seoScore').textContent = data.seo.estimatedScore + '/100';
+      document.getElementById('wordDiff').textContent = 
+        (data.improvements.wordCountDifference >= 0 ? '+' : '') + 
+        data.improvements.wordCountDifference.toLocaleString();
+      document.getElementById('readingTime').textContent = data.content.readingTime + ' min';
+
+      // Content preview
+      document.getElementById('previewTitle').textContent = data.content.title;
+      document.getElementById('previewMeta').textContent = data.content.metaDescription;
+      
+      // Convert markdown to HTML for preview
+      const htmlContent = convertMarkdownToHTML(data.content.body);
+      document.getElementById('previewBody').innerHTML = htmlContent;
+    }
+
+    function convertMarkdownToHTML(markdown) {
+      return markdown
+        .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+        .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+        .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.+?)\*/g, '<em>$1</em>')
+        .replace(/\n\n/g, '</p><p>')
+        .replace(/^(.+)$/gm, '<p>$1</p>');
+    }
+
+    function exportContent(format) {
+      if (!generatedData) {
+        alert('No content to export');
+        return;
+      }
+
+      switch (format) {
+        case 'copy':
+          navigator.clipboard.writeText(generatedData.content.body);
+          alert('Content copied to clipboard!');
+          break;
+
+        case 'html':
+          downloadFile(generatedData.exports.html, 'content.html', 'text/html');
+          break;
+
+        case 'markdown':
+          downloadFile(generatedData.content.body, 'content.md', 'text/markdown');
+          break;
+
+        case 'wordpress':
+          downloadFile(
+            JSON.stringify(generatedData.exports.wordpress, null, 2),
+            'wordpress-export.json',
+            'application/json'
+          );
+          break;
+      }
+    }
+
+    function downloadFile(content, filename, mimeType) {
+      const blob = new Blob([content], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      link.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function showError(message) {
+      document.getElementById('loadingState').style.display = 'none';
+      document.getElementById('inputSection').style.display = 'none';
+      document.getElementById('errorState').style.display = 'block';
+      document.getElementById('errorMessage').textContent = message;
+    }
+  </script>
+</body>
+</html>
