@@ -1,365 +1,326 @@
 /**
- * RankSmart - SEO Audit Module
- * Handles page auditing, E-E-A-T scoring, and competitor analysis
+ * RankSmart - SEO Audit Results Display
+ * Handles displaying audit results from the scan API
  */
 
-let currentAudit = null;
-let auditHistory = [];
-
-// Start new audit
-async function startAudit() {
-    const url = document.getElementById('audit-url').value;
-    
-    if (!url) {
-        showNotification('Please enter a URL to audit', 'error');
-        return;
-    }
-    
-    // Validate URL
-    try {
-        new URL(url);
-    } catch (e) {
-        showNotification('Please enter a valid URL', 'error');
-        return;
-    }
-    
-    // Show loading state
-    document.getElementById('audit-btn-text').style.display = 'none';
-    document.getElementById('audit-spinner').style.display = 'inline-block';
-    
-    // Hide previous results
-    document.getElementById('audit-results').style.display = 'none';
-    
-    // Show progress
-    document.getElementById('audit-progress').style.display = 'block';
-    updateAuditProgress(10, 'Fetching page content...');
-    
-    try {
-        // Fetch page content
-        const scrapeResponse = await API.post('/audit/scrape', { url });
-        updateAuditProgress(30, 'Analyzing SEO elements...');
-        
-        // Analyze SEO
-        const seoResponse = await API.post('/audit/analyze-seo', {
-            url,
-            content: scrapeResponse.data.content
-        });
-        updateAuditProgress(50, 'Calculating E-E-A-T scores...');
-        
-        // Calculate E-E-A-T
-        const eeatResponse = await API.post('/audit/analyze-eeat', {
-            url,
-            content: scrapeResponse.data.content
-        });
-        updateAuditProgress(70, 'Analyzing competitors...');
-        
-        // Get competitor data
-        const competitorResponse = await API.post('/audit/competitors', { url });
-        updateAuditProgress(90, 'Generating report...');
-        
-        // Combine results
-        currentAudit = {
-            url,
-            timestamp: new Date().toISOString(),
-            seo: seoResponse.data,
-            eeat: eeatResponse.data,
-            competitors: competitorResponse.data,
-            overallScore: calculateOverallScore(seoResponse.data, eeatResponse.data)
-        };
-        
-        updateAuditProgress(100, 'Complete!');
-        
-        // Display results
-        setTimeout(() => {
-            displayAuditResults();
-        }, 500);
-        
-        // Add to history
-        auditHistory.unshift(currentAudit);
-        updateAuditHistory();
-        
-    } catch (error) {
-        console.error('Audit error:', error);
-        showNotification('Audit failed. Please try again.', 'error');
-        document.getElementById('audit-progress').style.display = 'none';
-    } finally {
-        document.getElementById('audit-btn-text').style.display = 'inline';
-        document.getElementById('audit-spinner').style.display = 'none';
-    }
+// Get URL parameter
+function getUrlParameter(name) {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get(name);
 }
 
-// Update audit progress
-function updateAuditProgress(percent, text) {
-    document.getElementById('audit-progress-fill').style.width = percent + '%';
-    document.getElementById('audit-progress-text').textContent = text;
+// Animate score circle
+function animateScoreCircle(score) {
+  const circle = document.getElementById('scoreCircle');
+  const circumference = 502.65;
+  const offset = circumference - (score / 100) * circumference;
+  
+  setTimeout(() => {
+    circle.style.strokeDashoffset = offset;
+  }, 100);
 }
 
-// Calculate overall score
-function calculateOverallScore(seo, eeat) {
-    const seoScore = seo.score || 0;
-    const eeatScore = (eeat.experience + eeat.expertise + eeat.authoritativeness + eeat.trustworthiness) / 4;
-    return Math.round((seoScore + eeatScore) / 2);
+// Animate score number
+function animateScoreNumber(targetScore) {
+  const element = document.getElementById('overallScore');
+  let current = 0;
+  const increment = targetScore / 50;
+  const timer = setInterval(() => {
+    current += increment;
+    if (current >= targetScore) {
+      current = targetScore;
+      clearInterval(timer);
+    }
+    element.textContent = Math.round(current);
+  }, 20);
+}
+
+// Get score color class
+function getScoreClass(score) {
+  if (score >= 80) return 'score-excellent';
+  if (score >= 60) return 'score-good';
+  if (score >= 40) return 'score-fair';
+  return 'score-poor';
+}
+
+// Render E-E-A-T breakdown
+function renderEEATBreakdown(eeat) {
+  const container = document.getElementById('eeatBreakdown');
+  const breakdown = eeat.breakdown;
+  
+  const items = [
+    { label: 'Experience', value: breakdown.experience, key: 'experience' },
+    { label: 'Expertise', value: breakdown.expertise, key: 'expertise' },
+    { label: 'Authoritativeness', value: breakdown.authoritativeness, key: 'authoritativeness' },
+    { label: 'Trustworthiness', value: breakdown.trustworthiness, key: 'trustworthiness' }
+  ];
+  
+  let html = '';
+  items.forEach(item => {
+    html += `
+      <div class="score-bar-item">
+        <div class="score-bar-header">
+          <span class="score-bar-label">${item.label}</span>
+          <span class="score-bar-value">${item.value}/100</span>
+        </div>
+        <div class="score-bar-track">
+          <div class="score-bar-fill ${getScoreClass(item.value)}" 
+               style="width: ${item.value}%"></div>
+        </div>
+      </div>
+    `;
+  });
+  
+  container.innerHTML = html;
+}
+
+// Render Technical SEO breakdown
+function renderTechnicalBreakdown(technical) {
+  const container = document.getElementById('technicalBreakdown');
+  const breakdown = technical.breakdown || {};
+  
+  const items = [
+    { label: 'Meta Tags', value: breakdown.metaTags || 0 },
+    { label: 'Headings', value: breakdown.headings || 0 },
+    { label: 'Images', value: breakdown.images || 0 },
+    { label: 'Internal Links', value: breakdown.internalLinks || 0 },
+    { label: 'Content Quality', value: breakdown.contentQuality || 0 }
+  ];
+  
+  let html = '';
+  items.forEach(item => {
+    html += `
+      <div class="score-bar-item">
+        <div class="score-bar-header">
+          <span class="score-bar-label">${item.label}</span>
+          <span class="score-bar-value">${item.value}/100</span>
+        </div>
+        <div class="score-bar-track">
+          <div class="score-bar-fill ${getScoreClass(item.value)}" 
+               style="width: ${item.value}%"></div>
+        </div>
+      </div>
+    `;
+  });
+  
+  container.innerHTML = html;
+}
+
+// Render issues by priority
+function renderIssues(technical) {
+  const container = document.getElementById('issuesList');
+  const issuesByPriority = technical.issuesByPriority || {};
+  
+  let html = '';
+  
+  // P0 - Critical
+  if (issuesByPriority.P0 && issuesByPriority.P0.length > 0) {
+    html += `
+      <div class="priority-group">
+        <div class="priority-header">
+          <span class="priority-icon">🔴</span>
+          <span class="priority-title">Critical Issues</span>
+          <span class="priority-count">${issuesByPriority.P0.length}</span>
+        </div>
+    `;
+    
+    issuesByPriority.P0.forEach(issue => {
+      html += `
+        <div class="issue-card critical">
+          <div class="issue-title">${issue.issue}</div>
+          <div class="issue-description">${issue.description || ''}</div>
+          ${issue.recommendation ? `
+            <div class="issue-recommendation">
+              <strong>Fix:</strong> ${issue.recommendation}
+            </div>
+          ` : ''}
+        </div>
+      `;
+    });
+    
+    html += '</div>';
+  }
+  
+  // P1 - Important
+  if (issuesByPriority.P1 && issuesByPriority.P1.length > 0) {
+    html += `
+      <div class="priority-group">
+        <div class="priority-header">
+          <span class="priority-icon">🟡</span>
+          <span class="priority-title">Important Issues</span>
+          <span class="priority-count">${issuesByPriority.P1.length}</span>
+        </div>
+    `;
+    
+    issuesByPriority.P1.forEach(issue => {
+      html += `
+        <div class="issue-card important">
+          <div class="issue-title">${issue.issue}</div>
+          <div class="issue-description">${issue.description || ''}</div>
+          ${issue.recommendation ? `
+            <div class="issue-recommendation">
+              <strong>Fix:</strong> ${issue.recommendation}
+            </div>
+          ` : ''}
+        </div>
+      `;
+    });
+    
+    html += '</div>';
+  }
+  
+  // P2 - Minor
+  if (issuesByPriority.P2 && issuesByPriority.P2.length > 0) {
+    html += `
+      <div class="priority-group">
+        <div class="priority-header">
+          <span class="priority-icon">🟢</span>
+          <span class="priority-title">Minor Issues</span>
+          <span class="priority-count">${issuesByPriority.P2.length}</span>
+        </div>
+    `;
+    
+    issuesByPriority.P2.forEach(issue => {
+      html += `
+        <div class="issue-card">
+          <div class="issue-title">${issue.issue}</div>
+          <div class="issue-description">${issue.description || ''}</div>
+          ${issue.recommendation ? `
+            <div class="issue-recommendation">
+              <strong>Fix:</strong> ${issue.recommendation}
+            </div>
+          ` : ''}
+        </div>
+      `;
+    });
+    
+    html += '</div>';
+  }
+  
+  if (html === '') {
+    html = '<p style="color: #10b981; text-align: center; padding: 2rem;">🎉 No issues found! Your page is well optimized.</p>';
+  }
+  
+  container.innerHTML = html;
+}
+
+// Render E-E-A-T recommendations
+function renderEEATRecommendations(eeat) {
+  const container = document.getElementById('eeatRecommendations');
+  const recommendations = eeat.recommendations || [];
+  
+  if (recommendations.length === 0) {
+    container.innerHTML = '<p style="color: #10b981; text-align: center;">✅ Your E-E-A-T signals are strong!</p>';
+    return;
+  }
+  
+  let html = '';
+  recommendations.forEach(rec => {
+    const priorityClass = rec.priority === 'high' ? 'high-priority' : 
+                         rec.priority === 'medium' ? 'medium-priority' : '';
+    html += `
+      <div class="recommendation-card ${priorityClass}">
+        <div style="font-weight: 600; margin-bottom: 0.5rem;">${rec.category}</div>
+        <div style="color: #374151;">${rec.recommendation}</div>
+      </div>
+    `;
+  });
+  
+  container.innerHTML = html;
 }
 
 // Display audit results
-function displayAuditResults() {
-    document.getElementById('audit-progress').style.display = 'none';
-    document.getElementById('audit-results').style.display = 'block';
-    
-    // Update overall score
-    const score = currentAudit.overallScore;
-    document.getElementById('overall-score').textContent = score;
-    document.getElementById('overall-score').className = `score-circle ${getScoreClass(score)}`;
-    
-    // Update E-E-A-T scores
-    updateEEATScores();
-    
-    // Display issues
-    displayIssues();
-    
-    // Display competitor analysis
-    displayCompetitorAnalysis();
-    
-    // Scroll to results
-    document.getElementById('audit-results').scrollIntoView({ behavior: 'smooth' });
+async function displayAuditResults(data) {
+  // Hide loading
+  document.getElementById('loadingState').style.display = 'none';
+  document.getElementById('auditResults').style.display = 'block';
+  
+  const { overall, eeat, technicalSEO, page, stats } = data;
+  
+  // Update overall score
+  document.getElementById('overallScore').textContent = overall.score;
+  document.getElementById('overallGrade').textContent = overall.grade;
+  document.getElementById('scoreStatus').textContent = overall.message;
+  animateScoreCircle(overall.score);
+  animateScoreNumber(overall.score);
+  
+  // Update page info
+  document.getElementById('pageTitle').textContent = page.title;
+  document.getElementById('pageUrl').textContent = data.url;
+  
+  // Update stats
+  document.getElementById('totalIssues').textContent = stats.totalIssues;
+  document.getElementById('criticalIssues').textContent = stats.criticalIssues;
+  document.getElementById('wordCount').textContent = page.wordCount.toLocaleString();
+  document.getElementById('readingTime').textContent = `${page.readingTime} min`;
+  
+  // Render breakdowns
+  renderEEATBreakdown(eeat);
+  renderTechnicalBreakdown(technicalSEO);
+  
+  // Render issues
+  renderIssues(technicalSEO);
+  
+  // Render recommendations
+  renderEEATRecommendations(eeat);
 }
 
-// Update E-E-A-T scores
-function updateEEATScores() {
-    const eeat = currentAudit.eeat;
-    
-    updateScoreBar('experience', eeat.experience);
-    updateScoreBar('expertise', eeat.expertise);
-    updateScoreBar('authoritativeness', eeat.authoritativeness);
-    updateScoreBar('trustworthiness', eeat.trustworthiness);
+// Show error state
+function showError(message) {
+  document.getElementById('loadingState').innerHTML = `
+    <div class="error-state">
+      <div class="error-icon">❌</div>
+      <div class="error-title">Audit Failed</div>
+      <div class="error-message">${message}</div>
+      <button class="btn btn-primary" onclick="window.location.href='dashboard.html'">
+        ← Back to Dashboard
+      </button>
+    </div>
+  `;
 }
 
-// Update individual score bar
-function updateScoreBar(type, score) {
-    const bar = document.getElementById(`${type}-bar`);
-    const value = document.getElementById(`${type}-value`);
-    
-    if (bar && value) {
-        bar.style.width = score + '%';
-        bar.className = `score-bar-fill ${getScoreClass(score)}`;
-        value.textContent = score;
-    }
-}
-
-// Get score class based on value
-function getScoreClass(score) {
-    if (score >= 80) return 'score-excellent';
-    if (score >= 60) return 'score-good';
-    if (score >= 40) return 'score-fair';
-    return 'score-poor';
-}
-
-// Display issues
-function displayIssues() {
-    const issues = currentAudit.seo.issues || [];
-    const issuesContainer = document.getElementById('issues-list');
-    
-    if (issues.length === 0) {
-        issuesContainer.innerHTML = '<p class="text-muted">No issues found! Your page is well optimized.</p>';
-        return;
-    }
-    
-    // Group by priority
-    const p0 = issues.filter(i => i.priority === 'P0');
-    const p1 = issues.filter(i => i.priority === 'P1');
-    const p2 = issues.filter(i => i.priority === 'P2');
-    
-    let html = '';
-    
-    if (p0.length > 0) {
-        html += '<div class="issue-group"><h3 class="issue-priority-title priority-p0">🔴 Critical Issues (P0)</h3>';
-        p0.forEach(issue => {
-            html += renderIssue(issue);
-        });
-        html += '</div>';
-    }
-    
-    if (p1.length > 0) {
-        html += '<div class="issue-group"><h3 class="issue-priority-title priority-p1">🟡 Important Issues (P1)</h3>';
-        p1.forEach(issue => {
-            html += renderIssue(issue);
-        });
-        html += '</div>';
-    }
-    
-    if (p2.length > 0) {
-        html += '<div class="issue-group"><h3 class="issue-priority-title priority-p2">🟢 Minor Issues (P2)</h3>';
-        p2.forEach(issue => {
-            html += renderIssue(issue);
-        });
-        html += '</div>';
-    }
-    
-    issuesContainer.innerHTML = html;
-}
-
-// Render single issue
-function renderIssue(issue) {
-    return `
-        <div class="issue-item priority-${issue.priority.toLowerCase()}">
-            <div class="issue-header">
-                <h4>${issue.title}</h4>
-                <span class="badge badge-${issue.priority.toLowerCase()}">${issue.priority}</span>
-            </div>
-            <p class="issue-description">${issue.description}</p>
-            ${issue.recommendation ? `<p class="issue-recommendation"><strong>Fix:</strong> ${issue.recommendation}</p>` : ''}
-        </div>
-    `;
-}
-
-// Display competitor analysis
-function displayCompetitorAnalysis() {
-    const competitors = currentAudit.competitors || [];
-    const container = document.getElementById('competitor-list');
-    
-    if (competitors.length === 0) {
-        container.innerHTML = '<p class="text-muted">No competitor data available</p>';
-        return;
-    }
-    
-    let html = '<div class="competitor-grid">';
-    
-    competitors.forEach((comp, index) => {
-        html += `
-            <div class="competitor-card">
-                <div class="competitor-rank">#${index + 1}</div>
-                <h4 class="competitor-title">${comp.title}</h4>
-                <a href="${comp.url}" target="_blank" class="competitor-url">${comp.domain}</a>
-                <div class="competitor-stats">
-                    <div class="stat-item">
-                        <span class="stat-label">Words</span>
-                        <span class="stat-value">${comp.wordCount || 'N/A'}</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Backlinks</span>
-                        <span class="stat-value">${comp.backlinks || 'N/A'}</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">DA</span>
-                        <span class="stat-value">${comp.domainAuthority || 'N/A'}</span>
-                    </div>
-                </div>
-            </div>
-        `;
-    });
-    
-    html += '</div>';
-    container.innerHTML = html;
-}
-
-// Export audit report
-async function exportReport(format) {
-    if (!currentAudit) {
-        showNotification('No audit to export', 'error');
-        return;
-    }
-    
-    showNotification(`Exporting report as ${format.toUpperCase()}...`, 'info');
-    
-    try {
-        const response = await API.post('/audit/export', {
-            audit: currentAudit,
-            format: format
-        });
-        
-        if (response.success) {
-            // Download file
-            const blob = new Blob([response.data.content], { type: response.data.mimeType });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = response.data.filename;
-            a.click();
-            URL.revokeObjectURL(url);
-            
-            showNotification('Report exported successfully', 'success');
-        } else {
-            showNotification('Export failed', 'error');
-        }
-    } catch (error) {
-        console.error('Export error:', error);
-        showNotification('Export failed', 'error');
-    }
-}
-
-// Update audit history
-function updateAuditHistory() {
-    const container = document.getElementById('audit-history');
-    
-    if (!container) return;
-    
-    if (auditHistory.length === 0) {
-        container.innerHTML = '<p class="text-muted">No audit history yet</p>';
-        return;
-    }
-    
-    let html = '<div class="history-list">';
-    
-    auditHistory.slice(0, 10).forEach(audit => {
-        const date = new Date(audit.timestamp).toLocaleDateString();
-        const time = new Date(audit.timestamp).toLocaleTimeString();
-        
-        html += `
-            <div class="history-item" onclick="loadAudit('${audit.timestamp}')">
-                <div class="history-info">
-                    <div class="history-url">${audit.url}</div>
-                    <div class="history-date">${date} ${time}</div>
-                </div>
-                <div class="history-score ${getScoreClass(audit.overallScore)}">
-                    ${audit.overallScore}
-                </div>
-            </div>
-        `;
-    });
-    
-    html += '</div>';
-    container.innerHTML = html;
-}
-
-// Load previous audit
-function loadAudit(timestamp) {
-    const audit = auditHistory.find(a => a.timestamp === timestamp);
-    if (audit) {
-        currentAudit = audit;
-        displayAuditResults();
-    }
-}
-
-// Initialize on page load
-document.addEventListener('DOMContentLoaded', () => {
-    // Load audit history from storage
-    const stored = localStorage.getItem('ranksmart_audit_history');
-    if (stored) {
-        try {
-            auditHistory = JSON.parse(stored);
-            updateAuditHistory();
-        } catch (e) {
-            console.error('Failed to load audit history:', e);
-        }
-    }
-    
-    // Save history on changes
-    window.addEventListener('beforeunload', () => {
-        localStorage.setItem('ranksmart_audit_history', JSON.stringify(auditHistory));
-    });
+// Export report
+document.getElementById('exportBtn')?.addEventListener('click', () => {
+  alert('Export functionality coming soon!');
 });
 
-// Utility: Show notification
-function showNotification(message, type = 'info') {
-    const toast = document.createElement('div');
-    toast.className = `toast toast-${type}`;
-    toast.textContent = message;
+// Logout
+document.getElementById('logoutBtn')?.addEventListener('click', (e) => {
+  e.preventDefault();
+  localStorage.removeItem('ranksmart_token');
+  window.location.href = 'index.html';
+});
+
+// Load audit on page load
+document.addEventListener('DOMContentLoaded', async () => {
+  const url = getUrlParameter('url');
+  
+  if (!url) {
+    showError('No URL provided. Please start a new audit from the dashboard.');
+    return;
+  }
+  
+  try {
+    // Call the audit API
+    const response = await fetch('https://ranksmart.vercel.app/api/audit/scan', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ url: decodeURIComponent(url) })
+    });
     
-    document.body.appendChild(toast);
-    setTimeout(() => toast.classList.add('show'), 100);
+    const result = await response.json();
     
-    setTimeout(() => {
-        toast.classList.remove('show');
-        setTimeout(() => toast.remove(), 300);
-    }, 3000);
-}
+    if (!response.ok || !result.success) {
+      throw new Error(result.message || result.error || 'Audit failed');
+    }
+    
+    // Display results
+    await displayAuditResults(result.data);
+    
+  } catch (error) {
+    console.error('Audit error:', error);
+    showError(error.message || 'An unexpected error occurred. Please try again.');
+  }
+});
