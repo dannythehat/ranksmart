@@ -58,7 +58,7 @@ Database (Supabase)
 └── Built-in authentication
 
 AI & Integrations
-├── ChatGPT-5 (GPT-4o/o3) - The smartest AI for content analysis & generation
+├── ChatGPT-5 (GPT-5.0) - World's best AI for content analysis & generation
 ├── Firecrawl (web scraping)
 ├── Flux AI (image generation)
 └── Third-party APIs (WordPress, Webflow, Slack)
@@ -229,7 +229,7 @@ GitHub Pages will automatically deploy from the `public/` directory.
 - **Real-time subscriptions** - Live updates
 
 ### AI & Services
-- **ChatGPT-5 (GPT-4o/o3)** - The smartest AI for content analysis & generation
+- **ChatGPT-5 (GPT-5.0)** - World's best AI for content analysis & generation
 - **Firecrawl** - Web scraping & data extraction
 - **Flux AI** - Image generation
 - **Stripe** - Payment processing
@@ -259,7 +259,7 @@ We're building in public! Contributions welcome.
 
 ## 🧠 Powered by ChatGPT-5
 
-RankSmart uses **ChatGPT-5 (GPT-4o/o3)** - the world's smartest AI - for:
+RankSmart uses **ChatGPT-5 (GPT-5.0)** - the world's best AI - for:
 
 - **Content Analysis** - Deep SEO and E-E-A-T scoring
 - **Content Generation** - High-quality, optimized articles
@@ -304,7 +304,7 @@ RankSmart uses **ChatGPT-5 (GPT-4o/o3)** - the world's smartest AI - for:
 
 ## 🎉 What Makes RankSmart Special
 
-1. **Smartest AI** - Powered by ChatGPT-5 (GPT-4o/o3)
+1. **World's Best AI** - Powered by ChatGPT-5 (GPT-5.0)
 2. **Surgical Precision** - Exact fix locations with examples
 3. **Strategic Insights** - Understand WHY changes work
 4. **Auto-Fix Automation** - One-click improvements
@@ -322,4 +322,4 @@ RankSmart uses **ChatGPT-5 (GPT-4o/o3)** - the world's smartest AI - for:
 
 **Built with ❤️ by the RankSmart Team**
 
-*Powered by ChatGPT-5 - The World's Smartest AI*
+*Powered by ChatGPT-5 - The World's Best AI*
