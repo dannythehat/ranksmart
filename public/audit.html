@@ -334,6 +334,7 @@
       transition: all 0.3s;
       border: none;
       font-size: 1rem;
+      position: relative;
     }
 
     .btn-primary {
@@ -367,6 +368,49 @@
     .btn-outline:hover {
       background: #6366f1;
       color: white;
+    }
+
+    /* Export Dropdown */
+    .export-dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .export-menu {
+      display: none;
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: white;
+      border: 2px solid #6366f1;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      margin-bottom: 0.5rem;
+      min-width: 180px;
+      z-index: 1000;
+    }
+
+    .export-menu.show {
+      display: block;
+    }
+
+    .export-option {
+      padding: 0.75rem 1.25rem;
+      cursor: pointer;
+      transition: background 0.2s;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .export-option:last-child {
+      border-bottom: none;
+    }
+
+    .export-option:hover {
+      background: #f3f4f6;
     }
 
     /* Error State */
@@ -489,9 +533,19 @@
           <button class="btn btn-secondary" onclick="window.location.href='optimize.html?mode=rewrite'">
             ✨ Rewrite Content (Mode B)
           </button>
-          <button class="btn btn-outline" id="exportBtn">
-            📥 Export Report
-          </button>
+          <div class="export-dropdown">
+            <button class="btn btn-outline" id="exportBtn">
+              📥 Export Report
+            </button>
+            <div class="export-menu" id="exportMenu">
+              <div class="export-option" onclick="exportReport('json')">
+                📄 Export as JSON
+              </div>
+              <div class="export-option" onclick="exportReport('html')">
+                🌐 Export as HTML
+              </div>
+            </div>
+          </div>
           <button class="btn btn-outline" onclick="window.location.href='dashboard.html'">
             ← Back to Dashboard
           </button>
@@ -512,6 +566,9 @@
 
   <script src="js/api.js"></script>
   <script>
+    // Store audit data globally for export
+    let currentAuditData = null;
+
     // Get URL from query params
     const urlParams = new URLSearchParams(window.location.search);
     const targetUrl = urlParams.get('url');
@@ -539,6 +596,7 @@
           throw new Error(result.message || 'Audit failed');
         }
 
+        currentAuditData = result.data;
         displayResults(result.data);
       } catch (error) {
         console.error('Audit error:', error);
@@ -697,10 +755,47 @@
       document.getElementById('errorMessage').textContent = message;
     }
 
-    // Export functionality
-    document.getElementById('exportBtn')?.addEventListener('click', () => {
-      alert('Export functionality coming soon!');
+    // Export dropdown toggle
+    document.getElementById('exportBtn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const menu = document.getElementById('exportMenu');
+      menu.classList.toggle('show');
     });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', () => {
+      const menu = document.getElementById('exportMenu');
+      if (menu) menu.classList.remove('show');
+    });
+
+    // Export functionality
+    function exportReport(format) {
+      if (!currentAuditData) {
+        alert('No audit data available to export');
+        return;
+      }
+
+      const auditId = 'demo-' + Date.now();
+      const exportUrl = `/api/audit/export?auditId=${auditId}&format=${format}`;
+
+      if (format === 'json') {
+        // Download JSON directly
+        const dataStr = JSON.stringify(currentAuditData, null, 2);
+        const dataBlob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(dataBlob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `audit-${Date.now()}.json`;
+        link.click();
+        URL.revokeObjectURL(url);
+      } else if (format === 'html') {
+        // Open HTML export in new tab
+        window.open(exportUrl, '_blank');
+      }
+
+      // Close dropdown
+      document.getElementById('exportMenu').classList.remove('show');
+    }
   </script>
 </body>
 </html>
