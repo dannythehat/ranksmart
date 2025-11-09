@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SERP Analysis - RankSmart 2.0</title>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <style>
+    .serp-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    /* Header Section */
+    .serp-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+    }
+
+    .serp-header h1 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .serp-keyword {
+      font-size: 1.25rem;
+      opacity: 0.9;
+      margin-bottom: 1rem;
+    }
+
+    /* Search Form */
+    .search-form {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-group label {
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: #374151;
+    }
+
+    .form-group input {
+      padding: 0.75rem;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: border-color 0.2s;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #6366f1;
+    }
+
+    .analyze-btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 1rem 2rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s;
+      width: 100%;
+    }
+
+    .analyze-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .analyze-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Loading State */
+    .loading-state {
+      text-align: center;
+      padding: 4rem 2rem;
+    }
+
+    .spinner {
+      width: 60px;
+      height: 60px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #6366f1;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 1.5rem;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Summary Cards */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .summary-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border-left: 4px solid #6366f1;
+    }
+
+    .summary-card h3 {
+      font-size: 0.875rem;
+      color: #6b7280;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .summary-card .value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #1f2937;
+    }
+
+    .summary-card .subtext {
+      font-size: 0.875rem;
+      color: #6b7280;
+      margin-top: 0.5rem;
+    }
+
+    /* Competitor Table */
+    .competitors-section {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .competitors-section h2 {
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+      color: #1f2937;
+    }
+
+    .competitor-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .competitor-table th {
+      background: #f9fafb;
+      padding: 1rem;
+      text-align: left;
+      font-weight: 600;
+      color: #374151;
+      border-bottom: 2px solid #e5e7eb;
+    }
+
+    .competitor-table td {
+      padding: 1rem;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .competitor-table tr:hover {
+      background: #f9fafb;
+    }
+
+    .rank-badge {
+      display: inline-block;
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 50%;
+      text-align: center;
+      line-height: 32px;
+      font-weight: 700;
+    }
+
+    .domain-cell {
+      font-weight: 600;
+      color: #1f2937;
+    }
+
+    .url-link {
+      color: #6366f1;
+      text-decoration: none;
+      font-size: 0.875rem;
+      display: block;
+      margin-top: 0.25rem;
+    }
+
+    .url-link:hover {
+      text-decoration: underline;
+    }
+
+    .metric-value {
+      font-weight: 600;
+      color: #1f2937;
+    }
+
+    .metric-good {
+      color: #10b981;
+    }
+
+    .metric-warning {
+      color: #f59e0b;
+    }
+
+    .metric-bad {
+      color: #ef4444;
+    }
+
+    /* Gap Analysis */
+    .gap-analysis {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .gap-analysis h2 {
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+      color: #1f2937;
+    }
+
+    .gap-section {
+      margin-bottom: 2rem;
+    }
+
+    .gap-section h3 {
+      font-size: 1.125rem;
+      margin-bottom: 1rem;
+      color: #374151;
+    }
+
+    .keyword-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .keyword-tag {
+      background: #ede9fe;
+      color: #6366f1;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
+    .keyword-tag.missing {
+      background: #fee2e2;
+      color: #ef4444;
+    }
+
+    .comparison-bar {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .comparison-label {
+      min-width: 150px;
+      font-weight: 600;
+      color: #374151;
+    }
+
+    .bar-container {
+      flex: 1;
+      height: 32px;
+      background: #f3f4f6;
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+      transition: width 1s ease-out;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 0.5rem;
+      color: white;
+      font-weight: 600;
+      font-size: 0.875rem;
+    }
+
+    .bar-value {
+      min-width: 80px;
+      text-align: right;
+      font-weight: 600;
+      color: #1f2937;
+    }
+
+    /* Recommendations */
+    .recommendations {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .recommendations h2 {
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+      color: #1f2937;
+    }
+
+    .recommendation-card {
+      background: #f9fafb;
+      border-left: 4px solid #6366f1;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      border-radius: 8px;
+    }
+
+    .recommendation-card.high {
+      border-left-color: #ef4444;
+    }
+
+    .recommendation-card.medium {
+      border-left-color: #f59e0b;
+    }
+
+    .recommendation-card.low {
+      border-left-color: #10b981;
+    }
+
+    .recommendation-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .impact-badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .impact-badge.high {
+      background: #fee2e2;
+      color: #ef4444;
+    }
+
+    .impact-badge.medium {
+      background: #fef3c7;
+      color: #f59e0b;
+    }
+
+    .impact-badge.low {
+      background: #d1fae5;
+      color: #10b981;
+    }
+
+    .recommendation-title {
+      font-weight: 600;
+      color: #1f2937;
+      flex: 1;
+    }
+
+    .recommendation-details {
+      color: #6b7280;
+      font-size: 0.875rem;
+      line-height: 1.6;
+    }
+
+    /* Target Comparison */
+    .target-comparison {
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .target-comparison h2 {
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+      color: #78350f;
+    }
+
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    .comparison-item {
+      background: white;
+      padding: 1rem;
+      border-radius: 8px;
+    }
+
+    .comparison-item .label {
+      font-size: 0.875rem;
+      color: #6b7280;
+      margin-bottom: 0.25rem;
+    }
+
+    .comparison-item .value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #1f2937;
+    }
+
+    .comparison-item .diff {
+      font-size: 0.875rem;
+      margin-top: 0.25rem;
+    }
+
+    .diff.positive {
+      color: #10b981;
+    }
+
+    .diff.negative {
+      color: #ef4444;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+
+      .competitor-table {
+        font-size: 0.875rem;
+      }
+
+      .competitor-table th,
+      .competitor-table td {
+        padding: 0.75rem 0.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="serp-container">
+    <!-- Header -->
+    <div class="serp-header">
+      <h1>🔍 SERP Competitor Analysis</h1>
+      <p>Analyze top-ranking competitors and discover content gaps</p>
+    </div>
+
+    <!-- Search Form -->
+    <div class="search-form">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="keyword">Target Keyword *</label>
+          <input 
+            type="text" 
+            id="keyword" 
+            placeholder="e.g., best seo tools 2024"
+            required
+          >
+        </div>
+        <div class="form-group">
+          <label for="targetUrl">Your URL (Optional)</label>
+          <input 
+            type="url" 
+            id="targetUrl" 
+            placeholder="https://yoursite.com/article"
+          >
+        </div>
+      </div>
+      <button class="analyze-btn" onclick="analyzeSERP()">
+        Analyze SERP
+      </button>
+    </div>
+
+    <!-- Loading State -->
+    <div id="loadingState" class="loading-state" style="display: none;">
+      <div class="spinner"></div>
+      <h3>Analyzing SERP...</h3>
+      <p>Scraping top 10 competitors and extracting insights</p>
+    </div>
+
+    <!-- Results Container -->
+    <div id="resultsContainer" style="display: none;">
+      <!-- Summary Cards -->
+      <div class="summary-grid" id="summaryGrid"></div>
+
+      <!-- Target Comparison (if URL provided) -->
+      <div id="targetComparison" style="display: none;"></div>
+
+      <!-- Competitors Table -->
+      <div class="competitors-section">
+        <h2>📊 Top 10 Competitors</h2>
+        <div style="overflow-x: auto;">
+          <table class="competitor-table" id="competitorTable">
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>Domain</th>
+                <th>Words</th>
+                <th>Headings</th>
+                <th>Images</th>
+                <th>Links</th>
+              </tr>
+            </thead>
+            <tbody id="competitorTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Gap Analysis -->
+      <div class="gap-analysis">
+        <h2>🎯 Gap Analysis</h2>
+        
+        <div class="gap-section">
+          <h3>Common Keywords (Found in 50%+ of competitors)</h3>
+          <div id="commonKeywords" class="keyword-tags"></div>
+        </div>
+
+        <div class="gap-section" id="missingKeywordsSection" style="display: none;">
+          <h3>⚠️ Missing Keywords (You should add these)</h3>
+          <div id="missingKeywords" class="keyword-tags"></div>
+        </div>
+
+        <div class="gap-section">
+          <h3>Content Metrics Comparison</h3>
+          <div id="metricsComparison"></div>
+        </div>
+      </div>
+
+      <!-- AI Recommendations -->
+      <div class="recommendations">
+        <h2>💡 AI Recommendations</h2>
+        <div id="recommendationsContainer"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = 'https://ranksmart.vercel.app/api';
+
+    async function analyzeSERP() {
+      const keyword = document.getElementById('keyword').value.trim();
+      const targetUrl = document.getElementById('targetUrl').value.trim();
+
+      if (!keyword) {
+        alert('Please enter a keyword');
+        return;
+      }
+
+      // Show loading state
+      document.getElementById('loadingState').style.display = 'block';
+      document.getElementById('resultsContainer').style.display = 'none';
+      document.querySelector('.analyze-btn').disabled = true;
+
+      try {
+        const response = await fetch(`${API_URL}/audit/serp`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            keyword: keyword,
+            targetUrl: targetUrl || null,
+            limit: 10,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to analyze SERP');
+        }
+
+        const data = await response.json();
+        displayResults(data);
+
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Failed to analyze SERP. Please try again.');
+      } finally {
+        document.getElementById('loadingState').style.display = 'none';
+        document.querySelector('.analyze-btn').disabled = false;
+      }
+    }
+
+    function displayResults(data) {
+      // Show results container
+      document.getElementById('resultsContainer').style.display = 'block';
+
+      // Display summary cards
+      displaySummary(data.summary);
+
+      // Display target comparison if available
+      if (data.targetAnalysis) {
+        displayTargetComparison(data.targetAnalysis, data.gapAnalysis);
+      }
+
+      // Display competitors table
+      displayCompetitors(data.competitors);
+
+      // Display gap analysis
+      displayGapAnalysis(data.gapAnalysis, data.targetAnalysis);
+
+      // Display recommendations
+      displayRecommendations(data.recommendations);
+
+      // Scroll to results
+      document.getElementById('resultsContainer').scrollIntoView({ 
+        behavior: 'smooth' 
+      });
+    }
+
+    function displaySummary(summary) {
+      const grid = document.getElementById('summaryGrid');
+      grid.innerHTML = `
+        <div class="summary-card">
+          <h3>Competitors Analyzed</h3>
+          <div class="value">${summary.totalCompetitors}</div>
+          <div class="subtext">Top ranking pages</div>
+        </div>
+        <div class="summary-card">
+          <h3>Avg Word Count</h3>
+          <div class="value">${summary.avgWordCount.toLocaleString()}</div>
+          <div class="subtext">Words per article</div>
+        </div>
+        <div class="summary-card">
+          <h3>Avg Headings</h3>
+          <div class="value">${summary.avgHeadings}</div>
+          <div class="subtext">H1-H6 tags</div>
+        </div>
+        <div class="summary-card">
+          <h3>Common Keywords</h3>
+          <div class="value">${summary.commonKeywords.length}</div>
+          <div class="subtext">Shared across competitors</div>
+        </div>
+      `;
+    }
+
+    function displayTargetComparison(target, gap) {
+      const container = document.getElementById('targetComparison');
+      const comparison = gap.contentLengthComparison;
+      
+      container.style.display = 'block';
+      container.className = 'target-comparison';
+      container.innerHTML = `
+        <h2>🎯 Your Content vs Competitors</h2>
+        <div class="comparison-grid">
+          <div class="comparison-item">
+            <div class="label">Your Word Count</div>
+            <div class="value">${target.wordCount.toLocaleString()}</div>
+            <div class="diff ${comparison.difference >= 0 ? 'positive' : 'negative'}">
+              ${comparison.difference >= 0 ? '+' : ''}${comparison.difference.toLocaleString()} words
+            </div>
+          </div>
+          <div class="comparison-item">
+            <div class="label">Competitor Average</div>
+            <div class="value">${comparison.average.toLocaleString()}</div>
+            <div class="diff ${comparison.percentDiff >= 0 ? 'positive' : 'negative'}">
+              ${comparison.percentDiff >= 0 ? '+' : ''}${comparison.percentDiff}% difference
+            </div>
+          </div>
+          <div class="comparison-item">
+            <div class="label">Your Headings</div>
+            <div class="value">${target.headings.total}</div>
+          </div>
+          <div class="comparison-item">
+            <div class="label">Your Images</div>
+            <div class="value">${target.images.total}</div>
+            <div class="diff">${target.images.altCoverage}% with alt text</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function displayCompetitors(competitors) {
+      const tbody = document.getElementById('competitorTableBody');
+      tbody.innerHTML = competitors.map(comp => `
+        <tr>
+          <td><span class="rank-badge">${comp.rank}</span></td>
+          <td>
+            <div class="domain-cell">${comp.domain}</div>
+            <a href="${comp.url}" target="_blank" class="url-link">
+              ${comp.title.substring(0, 60)}${comp.title.length > 60 ? '...' : ''}
+            </a>
+          </td>
+          <td class="metric-value">${comp.wordCount.toLocaleString()}</td>
+          <td class="metric-value">${comp.headings.total}</td>
+          <td class="metric-value ${comp.images.altCoverage >= 80 ? 'metric-good' : comp.images.altCoverage >= 50 ? 'metric-warning' : 'metric-bad'}">
+            ${comp.images.total} (${comp.images.altCoverage}%)
+          </td>
+          <td class="metric-value">${comp.links.internal} / ${comp.links.external}</td>
+        </tr>
+      `).join('');
+    }
+
+    function displayGapAnalysis(gap, target) {
+      // Common keywords
+      const commonKeywords = document.getElementById('commonKeywords');
+      commonKeywords.innerHTML = gap.commonKeywords.slice(0, 15).map(kw => 
+        `<span class="keyword-tag">${kw.keyword} (${kw.frequency})</span>`
+      ).join('');
+
+      // Missing keywords (if target provided)
+      if (target && gap.missingKeywords.length > 0) {
+        document.getElementById('missingKeywordsSection').style.display = 'block';
+        const missingKeywords = document.getElementById('missingKeywords');
+        missingKeywords.innerHTML = gap.missingKeywords.slice(0, 15).map(kw => 
+          `<span class="keyword-tag missing">${kw}</span>`
+        ).join('');
+      }
+
+      // Metrics comparison
+      const metricsComparison = document.getElementById('metricsComparison');
+      const targetValue = target ? target.wordCount : 0;
+      const maxValue = Math.max(gap.averages.wordCount, targetValue);
+
+      metricsComparison.innerHTML = `
+        <div class="comparison-bar">
+          <div class="comparison-label">Competitor Avg</div>
+          <div class="bar-container">
+            <div class="bar-fill" style="width: ${(gap.averages.wordCount / maxValue) * 100}%">
+              ${gap.averages.wordCount.toLocaleString()}
+            </div>
+          </div>
+          <div class="bar-value">${gap.averages.wordCount.toLocaleString()} words</div>
+        </div>
+        ${target ? `
+        <div class="comparison-bar">
+          <div class="comparison-label">Your Content</div>
+          <div class="bar-container">
+            <div class="bar-fill" style="width: ${(targetValue / maxValue) * 100}%; background: linear-gradient(90deg, #f59e0b 0%, #ef4444 100%);">
+              ${targetValue.toLocaleString()}
+            </div>
+          </div>
+          <div class="bar-value">${targetValue.toLocaleString()} words</div>
+        </div>
+        ` : ''}
+      `;
+    }
+
+    function displayRecommendations(recommendations) {
+      const container = document.getElementById('recommendationsContainer');
+      
+      let html = '';
+
+      // Priority actions
+      if (recommendations.priority_actions && recommendations.priority_actions.length > 0) {
+        html += '<h3 style="margin-bottom: 1rem; color: #374151;">🚀 Priority Actions</h3>';
+        recommendations.priority_actions.forEach(action => {
+          html += `
+            <div class="recommendation-card ${action.impact}">
+              <div class="recommendation-header">
+                <span class="impact-badge ${action.impact}">${action.impact} impact</span>
+                <div class="recommendation-title">${action.action}</div>
+              </div>
+              <div class="recommendation-details">${action.reason}</div>
+            </div>
+          `;
+        });
+      }
+
+      // Content recommendations
+      if (recommendations.content_recommendations && recommendations.content_recommendations.length > 0) {
+        html += '<h3 style="margin: 2rem 0 1rem; color: #374151;">📝 Content Recommendations</h3>';
+        recommendations.content_recommendations.forEach(rec => {
+          html += `
+            <div class="recommendation-card medium">
+              <div class="recommendation-header">
+                <div class="recommendation-title">${rec.recommendation}</div>
+              </div>
+              <div class="recommendation-details">${rec.details}</div>
+            </div>
+          `;
+        });
+      }
+
+      // Keyword opportunities
+      if (recommendations.keyword_opportunities && recommendations.keyword_opportunities.length > 0) {
+        html += '<h3 style="margin: 2rem 0 1rem; color: #374151;">🎯 Keyword Opportunities</h3>';
+        recommendations.keyword_opportunities.forEach(kw => {
+          html += `
+            <div class="recommendation-card low">
+              <div class="recommendation-header">
+                <div class="recommendation-title">${kw.keyword}</div>
+              </div>
+              <div class="recommendation-details">${kw.reason}</div>
+            </div>
+          `;
+        });
+      }
+
+      container.innerHTML = html;
+    }
+
+    // Allow Enter key to submit
+    document.getElementById('keyword').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        analyzeSERP();
+      }
+    });
+
+    document.getElementById('targetUrl').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        analyzeSERP();
+      }
+    });
+  </script>
+</body>
+</html>
