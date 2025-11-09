@@ -1,6 +1,11 @@
 /**
- * Technical SEO Checker
+ * Technical SEO Checker (Refined v1.1)
  * Analyzes meta tags, headings, images, links, and technical elements
+ * 
+ * Changelog v1.1:
+ * - Changed missing meta description from P0 to P1
+ * - More lenient word count thresholds
+ * - Improved content quality scoring
  */
 
 /**
@@ -38,18 +43,19 @@ function checkMetaTags(data) {
   }
 
   // Meta description checks
+  // FIXED: Changed from P0 to P1 (not critical, but important)
   if (!description || description.length === 0) {
     issues.push({
       category: 'Meta Tags',
-      priority: 'P0',
+      priority: 'P1',
       issue: 'Missing meta description',
       fix: 'Add a compelling meta description (150-160 characters)',
-      impact: 'Critical for click-through rates',
+      impact: 'Important for click-through rates',
     });
   } else if (description.length < 120) {
     issues.push({
       category: 'Meta Tags',
-      priority: 'P1',
+      priority: 'P2',
       issue: 'Meta description too short',
       fix: `Expand description to 150-160 characters (current: ${description.length})`,
       impact: 'Short descriptions miss opportunities to attract clicks',
@@ -314,27 +320,35 @@ function checkContentQuality(data) {
   const issues = [];
   const { wordCount, readingTime, markdown } = data;
 
-  // Word count check
-  if (wordCount < 300) {
+  // Word count check - REFINED: More lenient thresholds
+  if (wordCount < 200) {
     issues.push({
       category: 'Content Quality',
       priority: 'P0',
       issue: 'Content too short',
-      fix: `Expand content to at least 1000 words (current: ${wordCount})`,
-      impact: 'Thin content ranks poorly in search results',
+      fix: `Expand content to at least 500 words (current: ${wordCount})`,
+      impact: 'Extremely thin content ranks poorly in search results',
     });
-  } else if (wordCount < 1000) {
+  } else if (wordCount < 500) {
     issues.push({
       category: 'Content Quality',
       priority: 'P1',
+      issue: 'Content is quite short',
+      fix: `Consider expanding to 1000+ words (current: ${wordCount})`,
+      impact: 'Short content may not fully address user intent',
+    });
+  } else if (wordCount < 800) {
+    issues.push({
+      category: 'Content Quality',
+      priority: 'P2',
       issue: 'Content could be more comprehensive',
-      fix: `Consider expanding to 1500+ words (current: ${wordCount})`,
+      fix: `Consider expanding to 1500+ words for better depth (current: ${wordCount})`,
       impact: 'Longer, comprehensive content tends to rank better',
     });
   }
 
   // Reading time
-  if (readingTime < 2) {
+  if (readingTime < 1) {
     issues.push({
       category: 'Content Quality',
       priority: 'P2',
@@ -345,16 +359,16 @@ function checkContentQuality(data) {
   }
 
   // Check for duplicate content patterns
-  const sentences = markdown.split(/[.!?]+/);
-  const duplicates = sentences.filter((sentence, index) => 
-    sentences.indexOf(sentence) !== index && sentence.trim().length > 20
-  );
-  if (duplicates.length > 0) {
+  const sentences = markdown.split(/[.!?]+/).filter(s => s.trim().length > 20);
+  const uniqueSentences = new Set(sentences.map(s => s.trim().toLowerCase()));
+  const duplicateRatio = sentences.length > 0 ? 1 - (uniqueSentences.size / sentences.length) : 0;
+  
+  if (duplicateRatio > 0.2) {
     issues.push({
       category: 'Content Quality',
       priority: 'P2',
-      issue: 'Duplicate sentences detected',
-      fix: 'Remove or rephrase duplicate content',
+      issue: 'Significant duplicate content detected',
+      fix: 'Remove or rephrase duplicate sentences',
       impact: 'Duplicate content provides no additional value',
     });
   }
@@ -367,6 +381,8 @@ function checkContentQuality(data) {
       wordCount,
       readingTime,
       sentences: sentences.length,
+      uniqueSentences: uniqueSentences.size,
+      duplicateRatio: Math.round(duplicateRatio * 100),
     },
   };
 }
