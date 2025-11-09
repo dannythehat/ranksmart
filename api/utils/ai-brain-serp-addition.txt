@@ -1,0 +1,138 @@
+/**
+ * SERP Analysis Brain
+ * Provides strategic insights from competitor analysis
+ */
+export async function serpAnalysisBrain(config) {
+  const { keyword, competitors, targetAnalysis, gapAnalysis, mode = 'competitor' } = config;
+
+  const systemPrompt = `You are RankSmart's SERP Analysis Brain - the world's smartest competitive intelligence system.
+
+Your mission: Transform raw competitor data into ACTIONABLE strategic insights.
+
+Analysis approach:
+1. PATTERN RECOGNITION: What makes top-ranking content successful?
+2. GAP IDENTIFICATION: What opportunities exist in the market?
+3. STRATEGIC PLANNING: How to outrank competitors?
+4. TACTICAL EXECUTION: Specific actions to take
+5. IMPACT PREDICTION: Expected results from recommendations
+
+Your insights must be:
+✅ STRATEGIC: Not just "add keywords" but WHY and WHERE
+✅ PRIORITIZED: High-impact opportunities first
+✅ ACTIONABLE: Specific steps anyone can follow
+✅ DATA-DRIVEN: Based on actual competitor analysis
+✅ MODE-AWARE: Tailored for ${mode === 'competitor' ? 'content generation' : 'self-audit'}
+
+Analysis categories:
+- Content strategy (topics, angles, depth)
+- Keyword opportunities (missing, underutilized)
+- Structural patterns (headings, formatting)
+- E-E-A-T signals (authority, trust, expertise)
+- User intent matching
+- Competitive advantages
+
+You see patterns others miss. You're the best competitive analyst in the world.`;
+
+  const competitorSummary = competitors.slice(0, 5).map(c => ({
+    rank: c.rank,
+    domain: c.domain,
+    wordCount: c.wordCount,
+    headings: c.headings.total,
+    topKeywords: c.keywords.slice(0, 5).map(k => k.keyword)
+  }));
+
+  const userPrompt = `ANALYZE SERP FOR: "${keyword}"
+
+MODE: ${mode === 'competitor' ? 'Competitor Content Generation' : 'Self-Audit & Optimization'}
+
+COMPETITOR DATA (Top 5):
+${JSON.stringify(competitorSummary, null, 2)}
+
+GAP ANALYSIS:
+- Average word count: ${gapAnalysis.averages.wordCount}
+- Average headings: ${gapAnalysis.averages.headings}
+- Common keywords (${gapAnalysis.commonKeywords.length}): ${gapAnalysis.commonKeywords.slice(0, 10).map(k => k.keyword).join(', ')}
+${gapAnalysis.missingKeywords.length > 0 ? `- Missing keywords (${gapAnalysis.missingKeywords.length}): ${gapAnalysis.missingKeywords.slice(0, 10).map(k => k.keyword).join(', ')}` : ''}
+${gapAnalysis.contentGaps.length > 0 ? `- Content gaps: ${gapAnalysis.contentGaps.map(g => g.type).join(', ')}` : ''}
+
+${targetAnalysis ? `TARGET URL ANALYSIS:
+- Domain: ${targetAnalysis.domain}
+- Word count: ${targetAnalysis.wordCount} (${gapAnalysis.targetComparison.wordCountPercentage > 0 ? '+' : ''}${gapAnalysis.targetComparison.wordCountPercentage}% vs avg)
+- Headings: ${targetAnalysis.headings.total} (${gapAnalysis.targetComparison.headingsDiff > 0 ? '+' : ''}${gapAnalysis.targetComparison.headingsDiff} vs avg)
+` : ''}
+
+TASK: Provide strategic insights for ${mode === 'competitor' ? 'creating superior content' : 'improving existing content'}.
+
+OUTPUT FORMAT (JSON):
+{
+  "executiveSummary": "2-3 sentence overview of the competitive landscape",
+  "competitiveAdvantages": [
+    {
+      "opportunity": "Specific advantage to exploit",
+      "reasoning": "Why this is an opportunity",
+      "impact": "high|medium|low",
+      "difficulty": "easy|medium|hard"
+    }
+  ],
+  "contentStrategy": {
+    "recommendedWordCount": <number>,
+    "recommendedHeadings": <number>,
+    "contentDepth": "comprehensive|detailed|standard",
+    "uniqueAngles": ["angle 1", "angle 2", "angle 3"],
+    "topicsCovered": ["topic 1", "topic 2", "topic 3"]
+  },
+  "keywordStrategy": {
+    "primaryKeywords": ["keyword 1", "keyword 2"],
+    "secondaryKeywords": ["keyword 3", "keyword 4"],
+    "longTailOpportunities": ["long tail 1", "long tail 2"],
+    "keywordIntegrationTips": ["tip 1", "tip 2"]
+  },
+  "structuralRecommendations": [
+    {
+      "element": "headings|images|links|lists",
+      "recommendation": "Specific recommendation",
+      "reasoning": "Why this helps",
+      "priority": "high|medium|low"
+    }
+  ],
+  "quickWins": [
+    {
+      "action": "Specific quick win",
+      "expectedImpact": "What this achieves",
+      "timeToImplement": "5min|15min|30min|1hour"
+    }
+  ],
+  "competitorWeaknesses": [
+    {
+      "weakness": "What competitors are missing",
+      "exploitation": "How to capitalize on this",
+      "impact": "high|medium|low"
+    }
+  ],
+  ${mode === 'self-audit' ? `"improvementPriorities": [
+    {
+      "area": "Area to improve",
+      "currentState": "Current situation",
+      "targetState": "Desired outcome",
+      "steps": ["step 1", "step 2"],
+      "priority": "high|medium|low"
+    }
+  ],` : ''}
+  "estimatedRankingPotential": {
+    "currentPosition": ${targetAnalysis ? '"estimated based on metrics"' : '"N/A - no target URL"'},
+    "targetPosition": "1-3|4-10|11-20",
+    "confidence": <0-100>,
+    "timeframe": "1-3 months|3-6 months|6-12 months"
+  }
+}
+
+Provide strategic, actionable insights that lead to ranking success.`;
+
+  return await aiBrain({
+    systemPrompt,
+    userPrompt,
+    temperature: 0.6, // Balanced for strategic thinking
+    maxTokens: 5000,
+    json: true
+  });
+}
