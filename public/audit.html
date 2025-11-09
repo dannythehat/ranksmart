@@ -7,132 +7,503 @@
   <link rel="stylesheet" href="css/main.css">
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/dashboard.css">
+  <style>
+    .audit-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    /* Loading State */
+    .loading-state {
+      text-align: center;
+      padding: 4rem 2rem;
+    }
+
+    .spinner {
+      width: 60px;
+      height: 60px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #6366f1;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 1.5rem;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Overall Score Card */
+    .score-hero {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 16px;
+      padding: 3rem;
+      text-align: center;
+      margin-bottom: 2rem;
+      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+    }
+
+    .score-display {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3rem;
+      margin: 2rem 0;
+    }
+
+    .score-circle-container {
+      position: relative;
+      width: 180px;
+      height: 180px;
+    }
+
+    .score-circle-bg {
+      fill: none;
+      stroke: rgba(255, 255, 255, 0.2);
+      stroke-width: 12;
+    }
+
+    .score-circle-progress {
+      fill: none;
+      stroke: white;
+      stroke-width: 12;
+      stroke-linecap: round;
+      transform: rotate(-90deg);
+      transform-origin: center;
+      transition: stroke-dashoffset 1.5s ease-in-out;
+    }
+
+    .score-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+    }
+
+    .score-number {
+      font-size: 3.5rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .score-grade {
+      font-size: 1.5rem;
+      opacity: 0.9;
+      margin-top: 0.25rem;
+    }
+
+    .score-details {
+      text-align: left;
+    }
+
+    .score-details h1 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .score-url {
+      opacity: 0.9;
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+      word-break: break-all;
+    }
+
+    .score-status {
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      font-weight: 600;
+      margin-top: 0.5rem;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border-left: 4px solid #6366f1;
+    }
+
+    .stat-label {
+      font-size: 0.875rem;
+      color: #6b7280;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #1f2937;
+    }
+
+    /* Score Breakdown */
+    .breakdown-section {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .breakdown-section h2 {
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+      color: #1f2937;
+    }
+
+    .score-bar-item {
+      margin-bottom: 1.5rem;
+    }
+
+    .score-bar-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+
+    .score-bar-label {
+      color: #374151;
+    }
+
+    .score-bar-value {
+      color: #6366f1;
+    }
+
+    .score-bar-track {
+      height: 12px;
+      background: #e5e7eb;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .score-bar-fill {
+      height: 100%;
+      border-radius: 6px;
+      transition: width 1s ease-in-out, background-color 0.3s;
+    }
+
+    .score-excellent { background: #10b981; }
+    .score-good { background: #3b82f6; }
+    .score-fair { background: #f59e0b; }
+    .score-poor { background: #ef4444; }
+
+    /* Issues Section */
+    .issues-section {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .priority-group {
+      margin-bottom: 2rem;
+    }
+
+    .priority-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 2px solid #e5e7eb;
+    }
+
+    .priority-icon {
+      font-size: 1.5rem;
+    }
+
+    .priority-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #1f2937;
+    }
+
+    .priority-count {
+      background: #e5e7eb;
+      color: #6b7280;
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+
+    .issue-card {
+      background: #f9fafb;
+      border-left: 4px solid #6366f1;
+      border-radius: 8px;
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+    }
+
+    .issue-card.critical {
+      border-left-color: #ef4444;
+      background: #fef2f2;
+    }
+
+    .issue-card.important {
+      border-left-color: #f59e0b;
+      background: #fffbeb;
+    }
+
+    .issue-title {
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 0.5rem;
+    }
+
+    .issue-description {
+      color: #6b7280;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin-bottom: 0.75rem;
+    }
+
+    .issue-recommendation {
+      background: white;
+      padding: 0.75rem;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      color: #374151;
+    }
+
+    .issue-recommendation strong {
+      color: #6366f1;
+    }
+
+    /* Recommendations */
+    .recommendations-grid {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .recommendation-card {
+      background: #f0fdf4;
+      border-left: 4px solid #10b981;
+      border-radius: 8px;
+      padding: 1.25rem;
+    }
+
+    .recommendation-card.high-priority {
+      background: #fef2f2;
+      border-left-color: #ef4444;
+    }
+
+    .recommendation-card.medium-priority {
+      background: #fffbeb;
+      border-left-color: #f59e0b;
+    }
+
+    /* Action Buttons */
+    .action-section {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 1.5rem;
+    }
+
+    .btn {
+      padding: 0.875rem 1.75rem;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      border: none;
+      font-size: 1rem;
+    }
+
+    .btn-primary {
+      background: #6366f1;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #4f46e5;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+    }
+
+    .btn-secondary {
+      background: #10b981;
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background: #059669;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+    }
+
+    .btn-outline {
+      background: white;
+      color: #6366f1;
+      border: 2px solid #6366f1;
+    }
+
+    .btn-outline:hover {
+      background: #6366f1;
+      color: white;
+    }
+
+    /* Error State */
+    .error-state {
+      text-align: center;
+      padding: 4rem 2rem;
+    }
+
+    .error-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+    }
+
+    .error-title {
+      font-size: 1.5rem;
+      color: #ef4444;
+      margin-bottom: 1rem;
+    }
+
+    .error-message {
+      color: #6b7280;
+      margin-bottom: 2rem;
+    }
+  </style>
 </head>
 <body>
-  <div class="container">
+  <div class="audit-container">
     <!-- Header -->
-    <header class="header">
-      <div class="header-content">
-        <h1 class="logo">🚀 RankSmart 2.0</h1>
-        <nav class="nav">
-          <a href="dashboard.html" class="nav-link">Dashboard</a>
-          <a href="#" class="nav-link" id="logoutBtn">Logout</a>
-        </nav>
-      </div>
+    <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+      <h1 style="font-size: 1.5rem; color: #1f2937;">🚀 RankSmart 2.0</h1>
+      <nav style="display: flex; gap: 1.5rem;">
+        <a href="dashboard.html" style="color: #6366f1; text-decoration: none; font-weight: 600;">Dashboard</a>
+        <a href="#" id="logoutBtn" style="color: #6b7280; text-decoration: none;">Logout</a>
+      </nav>
     </header>
 
     <!-- Loading State -->
     <div id="loadingState" class="loading-state">
       <div class="spinner"></div>
-      <p>Analyzing your content...</p>
+      <h2>Analyzing Your Content...</h2>
+      <p style="color: #6b7280; margin-top: 0.5rem;">This may take 10-30 seconds</p>
     </div>
 
     <!-- Audit Results -->
-    <div id="auditResults" class="audit-results" style="display: none;">
-      <!-- Overall Score Card -->
-      <div class="score-card">
-        <div class="score-circle">
-          <svg width="200" height="200">
-            <circle cx="100" cy="100" r="90" fill="none" stroke="#e0e0e0" stroke-width="12"/>
-            <circle id="scoreCircle" cx="100" cy="100" r="90" fill="none" stroke="#4CAF50" 
-                    stroke-width="12" stroke-dasharray="565.48" stroke-dashoffset="565.48"
-                    transform="rotate(-90 100 100)" stroke-linecap="round"/>
-          </svg>
-          <div class="score-text">
-            <span id="overallScore" class="score-number">0</span>
-            <span class="score-label">/100</span>
+    <div id="auditResults" style="display: none;">
+      <!-- Score Hero -->
+      <div class="score-hero">
+        <div class="score-display">
+          <div class="score-circle-container">
+            <svg width="180" height="180">
+              <circle class="score-circle-bg" cx="90" cy="90" r="80"/>
+              <circle id="scoreCircle" class="score-circle-progress" cx="90" cy="90" r="80" 
+                      stroke-dasharray="502.65" stroke-dashoffset="502.65"/>
+            </svg>
+            <div class="score-text">
+              <div class="score-number" id="overallScore">0</div>
+              <div class="score-grade" id="overallGrade">F</div>
+            </div>
+          </div>
+          <div class="score-details">
+            <h1 id="pageTitle">Page Title</h1>
+            <div class="score-url" id="pageUrl"></div>
+            <div class="score-status" id="scoreStatus">Analyzing...</div>
           </div>
         </div>
-        <h2 id="auditTitle">Page Title</h2>
-        <p id="auditUrl" class="audit-url"></p>
-        <p id="auditSummary" class="audit-summary"></p>
+      </div>
+
+      <!-- Quick Stats -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Total Issues</div>
+          <div class="stat-value" id="totalIssues">0</div>
+        </div>
+        <div class="stat-card" style="border-left-color: #ef4444;">
+          <div class="stat-label">Critical Issues</div>
+          <div class="stat-value" id="criticalIssues" style="color: #ef4444;">0</div>
+        </div>
+        <div class="stat-card" style="border-left-color: #10b981;">
+          <div class="stat-label">Word Count</div>
+          <div class="stat-value" id="wordCount">0</div>
+        </div>
+        <div class="stat-card" style="border-left-color: #f59e0b;">
+          <div class="stat-label">Reading Time</div>
+          <div class="stat-value" id="readingTime">0 min</div>
+        </div>
       </div>
 
       <!-- E-E-A-T Breakdown -->
-      <div class="eeat-breakdown">
-        <h3>E-E-A-T Score Breakdown</h3>
-        <div class="score-bars">
-          <div class="score-bar">
-            <div class="score-bar-header">
-              <span>Experience</span>
-              <span id="experienceScore">0/100</span>
-            </div>
-            <div class="progress-bar">
-              <div id="experienceBar" class="progress-fill" style="width: 0%"></div>
-            </div>
-          </div>
-          <div class="score-bar">
-            <div class="score-bar-header">
-              <span>Expertise</span>
-              <span id="expertiseScore">0/100</span>
-            </div>
-            <div class="progress-bar">
-              <div id="expertiseBar" class="progress-fill" style="width: 0%"></div>
-            </div>
-          </div>
-          <div class="score-bar">
-            <div class="score-bar-header">
-              <span>Authoritativeness</span>
-              <span id="authoritativenessScore">0/100</span>
-            </div>
-            <div class="progress-bar">
-              <div id="authoritativenessBar" class="progress-fill" style="width: 0%"></div>
-            </div>
-          </div>
-          <div class="score-bar">
-            <div class="score-bar-header">
-              <span>Trustworthiness</span>
-              <span id="trustworthinessScore">0/100</span>
-            </div>
-            <div class="progress-bar">
-              <div id="trustworthinessBar" class="progress-fill" style="width: 0%"></div>
-            </div>
-          </div>
-          <div class="score-bar">
-            <div class="score-bar-header">
-              <span>Technical SEO</span>
-              <span id="technicalScore">0/100</span>
-            </div>
-            <div class="progress-bar">
-              <div id="technicalBar" class="progress-fill" style="width: 0%"></div>
-            </div>
-          </div>
-          <div class="score-bar">
-            <div class="score-bar-header">
-              <span>Content Quality</span>
-              <span id="contentScore">0/100</span>
-            </div>
-            <div class="progress-bar">
-              <div id="contentBar" class="progress-fill" style="width: 0%"></div>
-            </div>
-          </div>
-        </div>
+      <div class="breakdown-section">
+        <h2>📊 E-E-A-T Score Breakdown</h2>
+        <div id="eeatBreakdown"></div>
       </div>
 
-      <!-- Priority Fixes -->
-      <div class="priority-fixes">
-        <h3>🎯 Priority Fixes</h3>
-        <div id="fixesList" class="fixes-list"></div>
+      <!-- Technical SEO Breakdown -->
+      <div class="breakdown-section">
+        <h2>🔧 Technical SEO Analysis</h2>
+        <div id="technicalBreakdown"></div>
+      </div>
+
+      <!-- Issues by Priority -->
+      <div class="issues-section">
+        <h2>🎯 Issues & Recommendations</h2>
+        <div id="issuesList"></div>
+      </div>
+
+      <!-- E-E-A-T Recommendations -->
+      <div class="breakdown-section">
+        <h2>💡 E-E-A-T Recommendations</h2>
+        <div id="eeatRecommendations" class="recommendations-grid"></div>
       </div>
 
       <!-- Action Buttons -->
-      <div class="action-buttons">
-        <button id="fixArticleBtn" class="btn btn-primary">
-          🛠️ Fix My Article (Mode A)
-        </button>
-        <button id="rewriteBtn" class="btn btn-secondary">
-          ✨ Rewrite Content (Mode B)
-        </button>
-        <button id="exportBtn" class="btn btn-outline">
-          📥 Export Report
-        </button>
+      <div class="action-section">
+        <h2>🚀 Next Steps</h2>
+        <p style="color: #6b7280; margin-top: 0.5rem;">Choose how you want to optimize this content</p>
+        <div class="action-buttons">
+          <button class="btn btn-primary" onclick="window.location.href='optimize.html?mode=fix'">
+            🛠️ Fix My Article (Mode A)
+          </button>
+          <button class="btn btn-secondary" onclick="window.location.href='optimize.html?mode=rewrite'">
+            ✨ Rewrite Content (Mode B)
+          </button>
+          <button class="btn btn-outline" id="exportBtn">
+            📥 Export Report
+          </button>
+          <button class="btn btn-outline" onclick="window.location.href='dashboard.html'">
+            ← Back to Dashboard
+          </button>
+        </div>
       </div>
     </div>
 
     <!-- Error State -->
     <div id="errorState" class="error-state" style="display: none;">
-      <h2>❌ Analysis Failed</h2>
-      <p id="errorMessage"></p>
+      <div class="error-icon">❌</div>
+      <h2 class="error-title">Analysis Failed</h2>
+      <p class="error-message" id="errorMessage"></p>
       <button onclick="window.location.href='dashboard.html'" class="btn btn-primary">
         Back to Dashboard
       </button>
@@ -141,30 +512,37 @@
 
   <script src="js/api.js"></script>
   <script>
-    // Get audit ID from URL
+    // Get URL from query params
     const urlParams = new URLSearchParams(window.location.search);
-    const auditId = urlParams.get('id');
+    const targetUrl = urlParams.get('url');
 
-    if (!auditId) {
-      showError('No audit ID provided');
+    if (!targetUrl) {
+      showError('No URL provided. Please start an audit from the dashboard.');
     } else {
-      loadAuditResults(auditId);
+      runAudit(targetUrl);
     }
 
-    async function loadAuditResults(id) {
+    async function runAudit(url) {
       try {
-        // In a real implementation, fetch from API
-        // For now, get from localStorage
-        const auditData = JSON.parse(localStorage.getItem('currentAudit'));
-        
-        if (!auditData) {
-          throw new Error('Audit data not found');
+        // Call the audit API
+        const response = await fetch('/api/audit/scan', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ url })
+        });
+
+        const result = await response.json();
+
+        if (!result.success) {
+          throw new Error(result.message || 'Audit failed');
         }
 
-        displayResults(auditData);
+        displayResults(result.data);
       } catch (error) {
-        console.error('Load audit error:', error);
-        showError(error.message);
+        console.error('Audit error:', error);
+        showError(error.message || 'Failed to analyze the page. Please try again.');
       }
     }
 
@@ -173,72 +551,144 @@
       document.getElementById('auditResults').style.display = 'block';
 
       // Overall score
-      const score = data.analysis.overall_score;
+      const score = data.overall.score;
       document.getElementById('overallScore').textContent = score;
-      animateScore(score);
+      document.getElementById('overallGrade').textContent = data.overall.grade;
+      document.getElementById('scoreStatus').textContent = data.overall.status.replace('-', ' ').toUpperCase();
+      animateScoreCircle(score);
 
       // Page info
-      document.getElementById('auditTitle').textContent = data.pageData.title;
-      document.getElementById('auditUrl').textContent = data.pageData.url;
-      document.getElementById('auditSummary').textContent = data.analysis.summary;
+      document.getElementById('pageTitle').textContent = data.page.title;
+      document.getElementById('pageUrl').textContent = data.url;
 
-      // E-E-A-T scores
-      updateScoreBar('experience', data.analysis.experience.score);
-      updateScoreBar('expertise', data.analysis.expertise.score);
-      updateScoreBar('authoritativeness', data.analysis.authoritativeness.score);
-      updateScoreBar('trustworthiness', data.analysis.trustworthiness.score);
-      updateScoreBar('technical', data.analysis.technical_seo.score);
-      updateScoreBar('content', data.analysis.content_quality.score);
+      // Stats
+      document.getElementById('totalIssues').textContent = data.stats.totalIssues;
+      document.getElementById('criticalIssues').textContent = data.stats.criticalIssues;
+      document.getElementById('wordCount').textContent = data.page.wordCount.toLocaleString();
+      document.getElementById('readingTime').textContent = data.page.readingTime + ' min';
 
-      // Priority fixes
-      displayFixes(data.analysis.priority_fixes);
+      // E-E-A-T Breakdown
+      renderScoreBreakdown('eeatBreakdown', data.eeat.breakdown);
+
+      // Technical SEO Breakdown
+      renderScoreBreakdown('technicalBreakdown', data.technicalSEO.breakdown);
+
+      // Issues
+      renderIssues(data.technicalSEO.issuesByPriority);
+
+      // E-E-A-T Recommendations
+      renderRecommendations(data.eeat.recommendations);
     }
 
-    function animateScore(score) {
+    function animateScoreCircle(score) {
       const circle = document.getElementById('scoreCircle');
-      const circumference = 565.48;
+      const circumference = 502.65;
       const offset = circumference - (score / 100) * circumference;
       
       setTimeout(() => {
         circle.style.strokeDashoffset = offset;
       }, 100);
-
-      // Change color based on score
-      if (score >= 80) {
-        circle.style.stroke = '#4CAF50';
-      } else if (score >= 60) {
-        circle.style.stroke = '#FFC107';
-      } else {
-        circle.style.stroke = '#F44336';
-      }
     }
 
-    function updateScoreBar(category, score) {
-      document.getElementById(`${category}Score`).textContent = `${score}/100`;
-      document.getElementById(`${category}Bar`).style.width = `${score}%`;
-      
-      const bar = document.getElementById(`${category}Bar`);
-      if (score >= 80) {
-        bar.style.backgroundColor = '#4CAF50';
-      } else if (score >= 60) {
-        bar.style.backgroundColor = '#FFC107';
-      } else {
-        bar.style.backgroundColor = '#F44336';
-      }
-    }
+    function renderScoreBreakdown(containerId, breakdown) {
+      const container = document.getElementById(containerId);
+      let html = '';
 
-    function displayFixes(fixes) {
-      const list = document.getElementById('fixesList');
-      list.innerHTML = fixes.map(fix => `
-        <div class="fix-item ${fix.impact}">
-          <div class="fix-header">
-            <span class="fix-title">${fix.title}</span>
-            <span class="fix-impact">${fix.impact.toUpperCase()}</span>
+      for (const [key, value] of Object.entries(breakdown)) {
+        const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+        const scoreClass = getScoreClass(value);
+        
+        html += `
+          <div class="score-bar-item">
+            <div class="score-bar-header">
+              <span class="score-bar-label">${label}</span>
+              <span class="score-bar-value">${value}/100</span>
+            </div>
+            <div class="score-bar-track">
+              <div class="score-bar-fill ${scoreClass}" style="width: ${value}%"></div>
+            </div>
           </div>
-          <p class="fix-description">${fix.description}</p>
-          <span class="fix-category">${fix.category}</span>
-        </div>
-      `).join('');
+        `;
+      }
+
+      container.innerHTML = html;
+    }
+
+    function renderIssues(issuesByPriority) {
+      const container = document.getElementById('issuesList');
+      let html = '';
+
+      const priorities = [
+        { key: 'P0', label: 'Critical Issues', icon: '🔴', class: 'critical' },
+        { key: 'P1', label: 'Important Issues', icon: '🟡', class: 'important' },
+        { key: 'P2', label: 'Minor Issues', icon: '🟢', class: 'minor' }
+      ];
+
+      priorities.forEach(priority => {
+        const issues = issuesByPriority[priority.key] || [];
+        if (issues.length > 0) {
+          html += `
+            <div class="priority-group">
+              <div class="priority-header">
+                <span class="priority-icon">${priority.icon}</span>
+                <span class="priority-title">${priority.label}</span>
+                <span class="priority-count">${issues.length}</span>
+              </div>
+          `;
+
+          issues.forEach(issue => {
+            html += `
+              <div class="issue-card ${priority.class}">
+                <div class="issue-title">${issue.issue}</div>
+                <div class="issue-description">${issue.description || ''}</div>
+                ${issue.recommendation ? `
+                  <div class="issue-recommendation">
+                    <strong>💡 Fix:</strong> ${issue.recommendation}
+                  </div>
+                ` : ''}
+              </div>
+            `;
+          });
+
+          html += '</div>';
+        }
+      });
+
+      if (html === '') {
+        html = '<p style="color: #10b981; text-align: center; padding: 2rem;">🎉 No issues found! Your page is well optimized.</p>';
+      }
+
+      container.innerHTML = html;
+    }
+
+    function renderRecommendations(recommendations) {
+      const container = document.getElementById('eeatRecommendations');
+      
+      if (!recommendations || recommendations.length === 0) {
+        container.innerHTML = '<p style="color: #10b981; text-align: center; padding: 2rem;">✅ Your E-E-A-T signals are strong!</p>';
+        return;
+      }
+
+      let html = '';
+      recommendations.forEach(rec => {
+        const priorityClass = rec.priority === 'high' ? 'high-priority' : 
+                            rec.priority === 'medium' ? 'medium-priority' : '';
+        html += `
+          <div class="recommendation-card ${priorityClass}">
+            <div style="font-weight: 600; margin-bottom: 0.5rem;">${rec.title || rec.recommendation}</div>
+            <div style="color: #6b7280; font-size: 0.9rem;">${rec.description || ''}</div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+    }
+
+    function getScoreClass(score) {
+      if (score >= 80) return 'score-excellent';
+      if (score >= 60) return 'score-good';
+      if (score >= 40) return 'score-fair';
+      return 'score-poor';
     }
 
     function showError(message) {
@@ -247,22 +697,9 @@
       document.getElementById('errorMessage').textContent = message;
     }
 
-    // Action buttons
-    document.getElementById('fixArticleBtn').addEventListener('click', () => {
-      alert('Mode A: Fix My Article - Coming in Week 5-6!');
-    });
-
-    document.getElementById('rewriteBtn').addEventListener('click', () => {
-      alert('Mode B: Rewrite Content - Coming in Week 5-6!');
-    });
-
-    document.getElementById('exportBtn').addEventListener('click', () => {
+    // Export functionality
+    document.getElementById('exportBtn')?.addEventListener('click', () => {
       alert('Export functionality coming soon!');
-    });
-
-    document.getElementById('logoutBtn').addEventListener('click', () => {
-      localStorage.removeItem('authToken');
-      window.location.href = 'index.html';
     });
   </script>
 </body>
