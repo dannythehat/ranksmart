@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auto-Update Monitor - RankSmart</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <style>
+        .monitor-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .add-monitor-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            color: white;
+        }
+
+        .add-monitor-form {
+            display: grid;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 200px 150px;
+            gap: 1rem;
+        }
+
+        .form-input {
+            padding: 0.75rem;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 8px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            font-size: 1rem;
+        }
+
+        .form-input::placeholder {
+            color: rgba(255,255,255,0.6);
+        }
+
+        .form-select {
+            padding: 0.75rem;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 8px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            font-size: 1rem;
+        }
+
+        .btn-add {
+            padding: 0.75rem 1.5rem;
+            background: white;
+            color: #667eea;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-add:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .monitored-list {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .monitor-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+
+        .monitor-card:hover {
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        }
+
+        .monitor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1rem;
+        }
+
+        .monitor-url {
+            font-weight: 600;
+            color: #667eea;
+            word-break: break-all;
+            flex: 1;
+        }
+
+        .monitor-status {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-left: 1rem;
+        }
+
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-paused {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .monitor-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: #6c757d;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-value {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .monitor-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .btn-action {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-check {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-pause {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .changes-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            background: #dc3545;
+            color: white;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #6c757d;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #667eea;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .monitor-stats {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="monitor-container">
+        <div class="page-header">
+            <h1>🔄 Auto-Update Monitor</h1>
+            <p>Track content changes and keep your articles up-to-date automatically</p>
+        </div>
+
+        <!-- Add New Monitor -->
+        <div class="add-monitor-section">
+            <h2>Add URL to Monitor</h2>
+            <form class="add-monitor-form" id="addMonitorForm">
+                <div class="form-row">
+                    <input 
+                        type="url" 
+                        class="form-input" 
+                        id="monitorUrl" 
+                        placeholder="https://example.com/article-to-monitor"
+                        required
+                    >
+                    <select class="form-select" id="checkFrequency">
+                        <option value="hourly">Check Hourly</option>
+                        <option value="daily" selected>Check Daily</option>
+                        <option value="weekly">Check Weekly</option>
+                    </select>
+                    <button type="submit" class="btn-add">
+                        ➕ Start Monitoring
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Monitored URLs List -->
+        <div id="monitoredList" class="monitored-list">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Loading monitored URLs...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'https://ranksmart.vercel.app/api';
+        const userId = 'demo-user'; // Replace with actual auth
+
+        // Load monitored URLs
+        async function loadMonitoredUrls() {
+            try {
+                const response = await fetch(`${API_BASE}/monitor/track?userId=${userId}`);
+                const data = await response.json();
+
+                const container = document.getElementById('monitoredList');
+
+                if (!data.success || data.monitored.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📭</div>
+                            <h3>No URLs being monitored</h3>
+                            <p>Add a URL above to start tracking content changes</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = data.monitored.map(monitor => `
+                    <div class="monitor-card" data-id="${monitor.id}">
+                        <div class="monitor-header">
+                            <div class="monitor-url">
+                                ${monitor.url}
+                                ${monitor.changes_detected > 0 ? `<span class="changes-badge">${monitor.changes_detected} changes</span>` : ''}
+                            </div>
+                            <span class="monitor-status status-${monitor.status}">
+                                ${monitor.status}
+                            </span>
+                        </div>
+
+                        <div class="monitor-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Check Frequency</span>
+                                <span class="stat-value">${monitor.check_frequency}</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Last Checked</span>
+                                <span class="stat-value">${formatDate(monitor.last_checked)}</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Word Count</span>
+                                <span class="stat-value">${monitor.last_snapshot?.word_count || 'N/A'}</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Changes Detected</span>
+                                <span class="stat-value">${monitor.changes_detected || 0}</span>
+                            </div>
+                        </div>
+
+                        <div class="monitor-actions">
+                            <button class="btn-action btn-check" onclick="checkNow('${monitor.id}')">
+                                🔍 Check Now
+                            </button>
+                            <button class="btn-action btn-pause" onclick="toggleStatus('${monitor.id}', '${monitor.status}')">
+                                ${monitor.status === 'active' ? '⏸️ Pause' : '▶️ Resume'}
+                            </button>
+                            <button class="btn-action btn-delete" onclick="deleteMonitor('${monitor.id}')">
+                                🗑️ Delete
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+
+            } catch (error) {
+                console.error('Failed to load monitored URLs:', error);
+                document.getElementById('monitoredList').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">⚠️</div>
+                        <h3>Failed to load monitored URLs</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Add new monitor
+        document.getElementById('addMonitorForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const url = document.getElementById('monitorUrl').value;
+            const checkFrequency = document.getElementById('checkFrequency').value;
+
+            try {
+                const response = await fetch(`${API_BASE}/monitor/track`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        userId,
+                        url,
+                        checkFrequency,
+                        notifyOnChange: true
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('✅ URL added to monitoring!');
+                    document.getElementById('addMonitorForm').reset();
+                    loadMonitoredUrls();
+                } else {
+                    alert('❌ ' + data.error);
+                }
+            } catch (error) {
+                alert('❌ Failed to add monitor: ' + error.message);
+            }
+        });
+
+        // Check for changes now
+        async function checkNow(monitorId) {
+            const card = document.querySelector(`[data-id="${monitorId}"]`);
+            const btn = card.querySelector('.btn-check');
+            const originalText = btn.textContent;
+
+            btn.textContent = '⏳ Checking...';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch(`${API_BASE}/monitor/check`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ monitorId, userId })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    if (data.hasChanges) {
+                        alert(`🔔 ${data.changes.length} change(s) detected!\n\n` + 
+                              data.changes.map(c => `• ${c.field}: ${c.change}`).join('\n'));
+                    } else {
+                        alert('✅ No changes detected');
+                    }
+                    loadMonitoredUrls();
+                } else {
+                    alert('❌ ' + data.error);
+                }
+            } catch (error) {
+                alert('❌ Failed to check: ' + error.message);
+            } finally {
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        // Toggle status
+        async function toggleStatus(monitorId, currentStatus) {
+            const newStatus = currentStatus === 'active' ? 'paused' : 'active';
+
+            try {
+                const response = await fetch(`${API_BASE}/monitor/track`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: monitorId, status: newStatus })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    loadMonitoredUrls();
+                } else {
+                    alert('❌ ' + data.error);
+                }
+            } catch (error) {
+                alert('❌ Failed to update status: ' + error.message);
+            }
+        }
+
+        // Delete monitor
+        async function deleteMonitor(monitorId) {
+            if (!confirm('Are you sure you want to stop monitoring this URL?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/monitor/track?id=${monitorId}`, {
+                    method: 'DELETE'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    loadMonitoredUrls();
+                } else {
+                    alert('❌ ' + data.error);
+                }
+            } catch (error) {
+                alert('❌ Failed to delete: ' + error.message);
+            }
+        }
+
+        // Format date
+        function formatDate(dateString) {
+            if (!dateString) return 'Never';
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+
+            if (diffMins < 1) return 'Just now';
+            if (diffMins < 60) return `${diffMins}m ago`;
+            if (diffHours < 24) return `${diffHours}h ago`;
+            if (diffDays < 7) return `${diffDays}d ago`;
+            return date.toLocaleDateString();
+        }
+
+        // Load on page load
+        loadMonitoredUrls();
+
+        // Auto-refresh every 30 seconds
+        setInterval(loadMonitoredUrls, 30000);
+    </script>
+</body>
+</html>
