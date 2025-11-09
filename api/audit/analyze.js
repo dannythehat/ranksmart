@@ -1,6 +1,9 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+/**
+ * SEO Analysis Endpoint
+ * Powered by ChatGPT-5 Brain - Surgical precision SEO audits
+ */
 
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY);
+import { seoAnalysisBrain, getUsageStats } from '../utils/ai-brain.js';
 
 export default async function handler(req, res) {
   // Enable CORS
@@ -16,8 +19,10 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
+  const startTime = Date.now();
+
   try {
-    const { pageData } = req.body;
+    const { pageData, competitorData } = req.body;
 
     if (!pageData || !pageData.content) {
       return res.status(400).json({ 
@@ -25,106 +30,156 @@ export default async function handler(req, res) {
       });
     }
 
-    // Initialize Gemini model
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
+    console.log(`[SEO ANALYSIS] Analyzing: ${pageData.url}`);
+    console.log(`[SEO ANALYSIS] Content length: ${pageData.content.length} chars`);
 
-    // Create E-E-A-T analysis prompt
-    const prompt = `You are an expert SEO analyst specializing in E-E-A-T (Experience, Expertise, Authoritativeness, Trustworthiness) evaluation for iGaming and affiliate content.
+    // Calculate current score (basic estimation)
+    const currentScore = estimateCurrentScore(pageData);
 
-Analyze the following webpage content and provide a detailed E-E-A-T score breakdown:
+    console.log('[SEO ANALYSIS] 🧠 Activating ChatGPT-5 Brain for deep analysis...');
 
-URL: ${pageData.url}
-Title: ${pageData.title}
-Word Count: ${pageData.wordCount}
-
-Content:
-${pageData.content.substring(0, 8000)}
-
-Provide your analysis in the following JSON format:
-{
-  "overall_score": <0-100>,
-  "experience": {
-    "score": <0-100>,
-    "issues": ["issue1", "issue2"],
-    "strengths": ["strength1", "strength2"]
-  },
-  "expertise": {
-    "score": <0-100>,
-    "issues": ["issue1", "issue2"],
-    "strengths": ["strength1", "strength2"]
-  },
-  "authoritativeness": {
-    "score": <0-100>,
-    "issues": ["issue1", "issue2"],
-    "strengths": ["strength1", "strength2"]
-  },
-  "trustworthiness": {
-    "score": <0-100>,
-    "issues": ["issue1", "issue2"],
-    "strengths": ["strength1", "strength2"]
-  },
-  "technical_seo": {
-    "score": <0-100>,
-    "issues": ["issue1", "issue2"],
-    "strengths": ["strength1", "strength2"]
-  },
-  "content_quality": {
-    "score": <0-100>,
-    "issues": ["issue1", "issue2"],
-    "strengths": ["strength1", "strength2"]
-  },
-  "priority_fixes": [
-    {
-      "title": "Fix title",
-      "description": "Description",
-      "impact": "high|medium|low",
-      "category": "experience|expertise|authoritativeness|trustworthiness|technical|content"
-    }
-  ],
-  "summary": "Brief overall summary of the page's SEO health"
-}
-
-Focus on:
-- Author credentials and expertise signals
-- First-hand experience indicators
-- Citation quality and external references
-- Content depth and accuracy
-- Technical SEO elements (title, meta, headings)
-- iGaming compliance and responsible gambling mentions
-- User trust signals (contact info, privacy policy, etc.)
-
-Return ONLY valid JSON, no markdown formatting.`;
-
-    // Generate analysis
-    const result = await model.generateContent(prompt);
-    const response = result.response;
-    const text = response.text();
-
-    // Parse JSON response
-    let analysis;
-    try {
-      // Remove markdown code blocks if present
-      const cleanText = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-      analysis = JSON.parse(cleanText);
-    } catch (parseError) {
-      console.error('JSON parse error:', parseError);
-      return res.status(500).json({ 
-        error: 'Failed to parse AI response',
-        rawResponse: text 
-      });
-    }
-
-    return res.status(200).json({
-      success: true,
-      analysis: analysis,
-      analyzedAt: new Date().toISOString(),
+    // Analyze with ChatGPT-5 Brain
+    const aiResponse = await seoAnalysisBrain({
+      url: pageData.url,
+      content: pageData.content,
+      competitorData: competitorData || {},
+      currentScore: currentScore
     });
+
+    const analysis = aiResponse.content;
+    const aiModel = aiResponse.model;
+    const aiUsage = aiResponse.usage;
+
+    console.log(`[SEO ANALYSIS] ✅ Analysis complete by ${aiModel}`);
+    console.log(`[SEO ANALYSIS] 📊 Score: ${analysis.overallScore}/100`);
+    console.log(`[SEO ANALYSIS] 🔧 Found ${analysis.criticalIssues?.length || 0} critical issues`);
+
+    const executionTime = Date.now() - startTime;
+    const usageStats = getUsageStats();
+
+    const response = {
+      success: true,
+      analysis: {
+        // Overall metrics
+        overallScore: analysis.overallScore,
+        currentScore: currentScore,
+        potentialScore: analysis.estimatedScoreAfterFixes || analysis.overallScore + 15,
+        
+        // Detailed breakdown
+        scoreBreakdown: analysis.scoreBreakdown || {
+          eeat: 0,
+          keywords: 0,
+          structure: 0,
+          technical: 0,
+          userIntent: 0
+        },
+
+        // Critical issues (high priority)
+        criticalIssues: analysis.criticalIssues || [],
+        
+        // Missing keywords
+        missingKeywords: analysis.missingKeywords || [],
+        
+        // Structural improvements
+        structuralImprovements: analysis.structuralImprovements || [],
+        
+        // Quick wins (easy, high-impact fixes)
+        quickWins: analysis.quickWins || [],
+
+        // Improvement potential
+        improvement: {
+          estimatedScoreIncrease: (analysis.estimatedScoreAfterFixes || currentScore + 15) - currentScore,
+          highImpactFixes: (analysis.criticalIssues || []).filter(i => i.impact === 'high').length,
+          mediumImpactFixes: (analysis.criticalIssues || []).filter(i => i.impact === 'medium').length,
+          lowImpactFixes: (analysis.criticalIssues || []).filter(i => i.impact === 'low').length,
+        }
+      },
+
+      // AI Brain metadata
+      ai: {
+        model: aiModel,
+        tokensUsed: aiUsage,
+        totalCost: usageStats.totalCost,
+        averageCostPerRequest: usageStats.averageCostPerRequest,
+      },
+
+      // Metadata
+      analyzedAt: new Date().toISOString(),
+      executionTime: `${(executionTime / 1000).toFixed(2)}s`,
+    };
+
+    console.log(`[SEO ANALYSIS] 🎉 COMPLETE in ${(executionTime / 1000).toFixed(2)}s`);
+    console.log(`[SEO ANALYSIS] 💰 Cost: $${usageStats.totalCost.toFixed(4)}`);
+
+    return res.status(200).json(response);
 
   } catch (error) {
-    console.error('Analysis error:', error);
+    const executionTime = Date.now() - startTime;
+    console.error(`[SEO ANALYSIS] ❌ FAILED: ${error.message} (${executionTime}ms)`);
+    console.error('Stack trace:', error.stack);
+    
     return res.status(500).json({ 
-      error: 'Internal server error',
-      message: error.message 
+      error: 'SEO analysis failed',
+      message: error.message || 'An unexpected error occurred',
+      details: 'The AI brain encountered an error during analysis. Please try again.',
+      executionTime: `${(executionTime / 1000).toFixed(2)}s`,
     });
   }
+}
+
+/**
+ * Estimate current SEO score based on basic metrics
+ */
+function estimateCurrentScore(pageData) {
+  let score = 50; // Base score
+
+  // Title optimization (max +10)
+  if (pageData.title) {
+    const titleLength = pageData.title.length;
+    if (titleLength >= 50 && titleLength <= 70) {
+      score += 10;
+    } else if (titleLength >= 40 && titleLength <= 80) {
+      score += 5;
+    }
+  }
+
+  // Meta description (max +10)
+  if (pageData.metaDescription) {
+    const metaLength = pageData.metaDescription.length;
+    if (metaLength >= 140 && metaLength <= 160) {
+      score += 10;
+    } else if (metaLength >= 120 && metaLength <= 170) {
+      score += 5;
+    }
+  }
+
+  // Word count (max +15)
+  const wordCount = pageData.wordCount || pageData.content.split(/\s+/).length;
+  if (wordCount >= 1500) {
+    score += 15;
+  } else if (wordCount >= 1000) {
+    score += 10;
+  } else if (wordCount >= 500) {
+    score += 5;
+  }
+
+  // Heading structure (max +10)
+  const h1Count = (pageData.content.match(/<h1/gi) || []).length;
+  const h2Count = (pageData.content.match(/<h2/gi) || []).length;
+  
+  if (h1Count === 1 && h2Count >= 3) {
+    score += 10;
+  } else if (h1Count === 1 && h2Count >= 1) {
+    score += 5;
+  }
+
+  // Images (max +5)
+  const imgCount = (pageData.content.match(/<img/gi) || []).length;
+  if (imgCount >= 3) {
+    score += 5;
+  } else if (imgCount >= 1) {
+    score += 3;
+  }
+
+  return Math.min(score, 100);
 }
