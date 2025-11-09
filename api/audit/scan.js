@@ -1,8 +1,11 @@
-import FirecrawlApp from '@mendable/firecrawl-js';
+/**
+ * Complete SEO Audit Endpoint
+ * Integrates Firecrawl scraping, E-E-A-T scoring, and technical SEO checks
+ */
 
-const firecrawl = new FirecrawlApp({ 
-  apiKey: process.env.FIRECRAWL_API_KEY 
-});
+const { scrapeUrl } = require('./firecrawl');
+const { calculateEEATScore } = require('./eeat-scorer');
+const { runTechnicalSEOAudit } = require('./technical-seo');
 
 export default async function handler(req, res) {
   // Enable CORS
@@ -36,13 +39,11 @@ export default async function handler(req, res) {
       });
     }
 
-    // Scrape the page with Firecrawl
-    const scrapeResult = await firecrawl.scrapeUrl(url, {
-      formats: ['markdown', 'html'],
-      onlyMainContent: true,
-      includeTags: ['title', 'meta', 'h1', 'h2', 'h3', 'p', 'img', 'a'],
-    });
+    console.log(`Starting audit for: ${url}`);
 
+    // Step 1: Scrape the page with Firecrawl
+    const scrapeResult = await scrapeUrl(url);
+    
     if (!scrapeResult.success) {
       return res.status(400).json({ 
         error: 'Failed to scrape URL',
@@ -50,24 +51,78 @@ export default async function handler(req, res) {
       });
     }
 
-    // Extract key SEO elements
-    const pageData = {
-      url: url,
-      title: scrapeResult.metadata?.title || '',
-      description: scrapeResult.metadata?.description || '',
-      content: scrapeResult.markdown || '',
-      html: scrapeResult.html || '',
-      wordCount: scrapeResult.markdown?.split(/\s+/).length || 0,
-      headings: extractHeadings(scrapeResult.html || ''),
-      images: scrapeResult.metadata?.images || [],
-      links: extractLinks(scrapeResult.html || ''),
-      metadata: scrapeResult.metadata || {},
-      scrapedAt: new Date().toISOString(),
+    const scrapedData = scrapeResult.data;
+    console.log(`Scraped ${scrapedData.wordCount} words from ${url}`);
+
+    // Step 2: Calculate E-E-A-T Score
+    const eeatScore = calculateEEATScore(scrapedData);
+    console.log(`E-E-A-T Score: ${eeatScore.overall}/100`);
+
+    // Step 3: Run Technical SEO Audit
+    const technicalSEO = runTechnicalSEOAudit(scrapedData);
+    console.log(`Technical SEO Score: ${technicalSEO.overallScore}/100`);
+
+    // Step 4: Calculate Overall Audit Score
+    const overallScore = Math.round(
+      (eeatScore.overall * 0.5) + 
+      (technicalSEO.overallScore * 0.5)
+    );
+
+    // Step 5: Compile complete audit report
+    const auditReport = {
+      url,
+      scannedAt: new Date().toISOString(),
+      
+      // Overall metrics
+      overall: {
+        score: overallScore,
+        grade: getGrade(overallScore),
+        status: overallScore >= 70 ? 'good' : overallScore >= 50 ? 'needs-improvement' : 'poor',
+      },
+
+      // E-E-A-T Analysis
+      eeat: {
+        overall: eeatScore.overall,
+        grade: eeatScore.grade,
+        breakdown: eeatScore.breakdown,
+        recommendations: eeatScore.recommendations,
+      },
+
+      // Technical SEO Analysis
+      technicalSEO: {
+        overall: technicalSEO.overallScore,
+        grade: technicalSEO.grade,
+        breakdown: technicalSEO.breakdown,
+        issuesByPriority: technicalSEO.issuesByPriority,
+        totalIssues: technicalSEO.totalIssues,
+        criticalIssues: technicalSEO.criticalIssues,
+      },
+
+      // Page metadata
+      page: {
+        title: scrapedData.title,
+        description: scrapedData.description,
+        wordCount: scrapedData.wordCount,
+        readingTime: scrapedData.readingTime,
+        headingCount: scrapedData.headings?.length || 0,
+        imageCount: scrapedData.images?.length || 0,
+        linkCount: scrapedData.links?.length || 0,
+      },
+
+      // Quick stats for dashboard
+      stats: {
+        totalIssues: technicalSEO.totalIssues + eeatScore.recommendations.length,
+        criticalIssues: technicalSEO.criticalIssues + eeatScore.recommendations.filter(r => r.priority === 'high').length,
+        eeatScore: eeatScore.overall,
+        technicalScore: technicalSEO.overallScore,
+      },
     };
+
+    console.log(`Audit complete! Overall score: ${overallScore}/100`);
 
     return res.status(200).json({
       success: true,
-      data: pageData,
+      data: auditReport,
     });
 
   } catch (error) {
@@ -79,39 +134,15 @@ export default async function handler(req, res) {
   }
 }
 
-// Helper function to extract headings
-function extractHeadings(html) {
-  const headings = { h1: [], h2: [], h3: [] };
-  const h1Regex = /<h1[^>]*>(.*?)<\/h1>/gi;
-  const h2Regex = /<h2[^>]*>(.*?)<\/h2>/gi;
-  const h3Regex = /<h3[^>]*>(.*?)<\/h3>/gi;
-
-  let match;
-  while ((match = h1Regex.exec(html)) !== null) {
-    headings.h1.push(match[1].replace(/<[^>]*>/g, '').trim());
-  }
-  while ((match = h2Regex.exec(html)) !== null) {
-    headings.h2.push(match[1].replace(/<[^>]*>/g, '').trim());
-  }
-  while ((match = h3Regex.exec(html)) !== null) {
-    headings.h3.push(match[1].replace(/<[^>]*>/g, '').trim());
-  }
-
-  return headings;
-}
-
-// Helper function to extract links
-function extractLinks(html) {
-  const links = [];
-  const linkRegex = /<a[^>]*href=["']([^"']*)["'][^>]*>(.*?)<\/a>/gi;
-  let match;
-
-  while ((match = linkRegex.exec(html)) !== null) {
-    links.push({
-      url: match[1],
-      text: match[2].replace(/<[^>]*>/g, '').trim(),
-    });
-  }
-
-  return links;
+function getGrade(score) {
+  if (score >= 90) return 'A+';
+  if (score >= 85) return 'A';
+  if (score >= 80) return 'A-';
+  if (score >= 75) return 'B+';
+  if (score >= 70) return 'B';
+  if (score >= 65) return 'B-';
+  if (score >= 60) return 'C+';
+  if (score >= 55) return 'C';
+  if (score >= 50) return 'C-';
+  return 'F';
 }
