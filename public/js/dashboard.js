@@ -49,7 +49,7 @@ async function loadDashboardData() {
         dashboardState.loading = false;
     } catch (error) {
         console.error('Failed to load dashboard data:', error);
-        RankSmart.utils.showToast('Failed to load dashboard data', 'error');
+        showToast('Failed to load dashboard data', 'error');
     }
 }
 
@@ -119,6 +119,38 @@ function setupEventListeners() {
     fixIssuesBtns.forEach(btn => {
         btn.addEventListener('click', handleFixIssues);
     });
+    
+    // Quick audit form
+    const quickAuditForm = document.getElementById('quickAuditForm');
+    if (quickAuditForm) {
+        quickAuditForm.addEventListener('submit', handleQuickAudit);
+    }
+}
+
+/**
+ * Handle quick audit from dashboard
+ */
+function handleQuickAudit(e) {
+    e.preventDefault();
+    
+    const urlInput = document.getElementById('quickAuditUrl');
+    const url = urlInput?.value?.trim();
+    
+    if (!url) {
+        showToast('Please enter a URL', 'error');
+        return;
+    }
+    
+    // Validate URL
+    try {
+        new URL(url);
+    } catch {
+        showToast('Please enter a valid URL', 'error');
+        return;
+    }
+    
+    // Redirect to audit page with URL
+    window.location.href = `audit.html?url=${encodeURIComponent(url)}`;
 }
 
 /**
@@ -126,7 +158,12 @@ function setupEventListeners() {
  */
 function handleNewAudit(e) {
     e.preventDefault();
-    window.location.href = 'audit.html';
+    
+    // Show quick audit modal or redirect
+    const url = prompt('Enter URL to audit:');
+    if (url) {
+        window.location.href = `audit.html?url=${encodeURIComponent(url)}`;
+    }
 }
 
 /**
@@ -186,7 +223,35 @@ function exportDashboardData() {
     a.click();
     URL.revokeObjectURL(url);
     
-    RankSmart.utils.showToast('Dashboard data exported', 'success');
+    showToast('Dashboard data exported', 'success');
+}
+
+/**
+ * Show toast notification
+ */
+function showToast(message, type = 'info') {
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.textContent = message;
+    toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 1rem 1.5rem;
+        background: ${type === 'error' ? '#ef4444' : type === 'success' ? '#10b981' : '#6366f1'};
+        color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 10000;
+        animation: slideIn 0.3s ease-out;
+    `;
+    
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.style.animation = 'slideOut 0.3s ease-out';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
 }
 
 // Initialize when DOM is ready
