@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Impact Dashboard - RankSmart</title>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <style>
+    /* Impact Dashboard Specific Styles */
+    .impact-hero {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 3rem 2rem;
+      border-radius: 20px;
+      margin-bottom: 2rem;
+      color: white;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .impact-hero::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+      animation: pulse 4s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 0.5; }
+      50% { transform: scale(1.1); opacity: 0.8; }
+    }
+
+    .impact-hero h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .impact-hero p {
+      font-size: 1.2rem;
+      opacity: 0.9;
+      position: relative;
+      z-index: 1;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: white;
+      border-radius: 15px;
+      padding: 2rem;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, #667eea, #764ba2);
+    }
+
+    .stat-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+    }
+
+    .stat-card.success::before {
+      background: linear-gradient(90deg, #10b981, #059669);
+    }
+
+    .stat-card.warning::before {
+      background: linear-gradient(90deg, #f59e0b, #d97706);
+    }
+
+    .stat-card.danger::before {
+      background: linear-gradient(90deg, #ef4444, #dc2626);
+    }
+
+    .stat-icon {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .stat-value {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .stat-card.success .stat-value {
+      background: linear-gradient(135deg, #10b981, #059669);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .stat-card.warning .stat-value {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .stat-card.danger .stat-value {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .stat-label {
+      color: #6b7280;
+      font-size: 0.95rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-change {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.3rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .stat-change.positive {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .stat-change.negative {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .section-header h2 {
+      font-size: 1.8rem;
+      color: #1f2937;
+    }
+
+    .filter-tabs {
+      display: flex;
+      gap: 0.5rem;
+      background: #f3f4f6;
+      padding: 0.3rem;
+      border-radius: 10px;
+    }
+
+    .filter-tab {
+      padding: 0.6rem 1.2rem;
+      border: none;
+      background: transparent;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      color: #6b7280;
+      transition: all 0.2s ease;
+    }
+
+    .filter-tab.active {
+      background: white;
+      color: #667eea;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .articles-grid {
+      display: grid;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .article-card {
+      background: white;
+      border-radius: 15px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      transition: all 0.3s ease;
+      border-left: 4px solid #e5e7eb;
+    }
+
+    .article-card:hover {
+      transform: translateX(5px);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+    }
+
+    .article-card.improved {
+      border-left-color: #10b981;
+    }
+
+    .article-card.declined {
+      border-left-color: #ef4444;
+    }
+
+    .article-card.stable {
+      border-left-color: #f59e0b;
+    }
+
+    .article-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+    }
+
+    .article-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 0.3rem;
+    }
+
+    .article-url {
+      font-size: 0.85rem;
+      color: #6b7280;
+      text-decoration: none;
+    }
+
+    .article-url:hover {
+      color: #667eea;
+    }
+
+    .status-badge {
+      padding: 0.4rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .status-badge.improved {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .status-badge.declined {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .status-badge.stable {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .status-badge.tracking {
+      background: #e0e7ff;
+      color: #3730a3;
+    }
+
+    .article-metrics {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .metric {
+      text-align: center;
+      padding: 0.8rem;
+      background: #f9fafb;
+      border-radius: 10px;
+    }
+
+    .metric-label {
+      font-size: 0.75rem;
+      color: #6b7280;
+      margin-bottom: 0.3rem;
+      text-transform: uppercase;
+    }
+
+    .metric-value {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #1f2937;
+    }
+
+    .metric-change {
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-top: 0.2rem;
+    }
+
+    .metric-change.positive {
+      color: #10b981;
+    }
+
+    .metric-change.negative {
+      color: #ef4444;
+    }
+
+    .timeline {
+      position: relative;
+      padding-left: 2rem;
+      margin-top: 1rem;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 0.5rem;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: #e5e7eb;
+    }
+
+    .timeline-item {
+      position: relative;
+      padding-bottom: 1.5rem;
+    }
+
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -1.5rem;
+      top: 0.3rem;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #667eea;
+      border: 2px solid white;
+      box-shadow: 0 0 0 2px #667eea;
+    }
+
+    .timeline-date {
+      font-size: 0.85rem;
+      color: #6b7280;
+      margin-bottom: 0.3rem;
+    }
+
+    .timeline-content {
+      font-size: 0.95rem;
+      color: #1f2937;
+    }
+
+    .chart-container {
+      background: white;
+      border-radius: 15px;
+      padding: 2rem;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      margin-bottom: 2rem;
+    }
+
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .chart-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #1f2937;
+    }
+
+    .chart-period {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .period-btn {
+      padding: 0.5rem 1rem;
+      border: 1px solid #e5e7eb;
+      background: white;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      color: #6b7280;
+      transition: all 0.2s ease;
+    }
+
+    .period-btn.active {
+      background: #667eea;
+      color: white;
+      border-color: #667eea;
+    }
+
+    .export-section {
+      background: white;
+      border-radius: 15px;
+      padding: 2rem;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      text-align: center;
+    }
+
+    .export-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 1.5rem;
+    }
+
+    .export-btn {
+      padding: 0.8rem 1.5rem;
+      border: 2px solid #667eea;
+      background: white;
+      color: #667eea;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .export-btn:hover {
+      background: #667eea;
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+
+    .empty-state-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+
+    .empty-state h3 {
+      font-size: 1.5rem;
+      color: #1f2937;
+      margin-bottom: 0.5rem;
+    }
+
+    .empty-state p {
+      color: #6b7280;
+      margin-bottom: 1.5rem;
+    }
+
+    .gsc-connect-btn {
+      padding: 1rem 2rem;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .gsc-connect-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 1s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .impact-hero h1 {
+        font-size: 1.8rem;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .article-metrics {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .chart-period {
+        flex-wrap: wrap;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar Navigation -->
+  <nav class="sidebar">
+    <div class="sidebar-header">
+      <h2>🚀 RankSmart</h2>
+    </div>
+    <ul class="sidebar-menu">
+      <li><a href="dashboard.html">📊 Dashboard</a></li>
+      <li><a href="competitor-mode.html">✨ Content Generator</a></li>
+      <li><a href="self-audit.html">🔧 Self-Audit</a></li>
+      <li><a href="serp-analysis.html">🎯 SERP Analysis</a></li>
+      <li><a href="impact-dashboard.html" class="active">📈 Impact Dashboard</a></li>
+      <li><a href="settings.html">⚙️ Settings</a></li>
+    </ul>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Hero Section -->
+    <div class="impact-hero">
+      <h1>📈 Your SEO Success Story</h1>
+      <p>Watch your rankings soar and traffic grow with real-time impact tracking</p>
+    </div>
+
+    <!-- Stats Overview -->
+    <div class="stats-grid" id="statsGrid">
+      <div class="stat-card success">
+        <div class="stat-icon">🎉</div>
+        <div class="stat-value" id="articlesImproved">0</div>
+        <div class="stat-label">Articles Improved</div>
+        <span class="stat-change positive" id="improvedChange">
+          ↑ 0 this week
+        </span>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">📊</div>
+        <div class="stat-value" id="avgPositionChange">+0</div>
+        <div class="stat-label">Avg Position Change</div>
+        <span class="stat-change positive" id="positionChange">
+          ↑ Better rankings
+        </span>
+      </div>
+
+      <div class="stat-card success">
+        <div class="stat-icon">👥</div>
+        <div class="stat-value" id="trafficIncrease">+0%</div>
+        <div class="stat-label">Traffic Increase</div>
+        <span class="stat-change positive" id="trafficChange">
+          ↑ 0 more clicks
+        </span>
+      </div>
+
+      <div class="stat-card warning">
+        <div class="stat-icon">⏱️</div>
+        <div class="stat-value" id="totalTracking">0</div>
+        <div class="stat-label">Articles Tracking</div>
+        <span class="stat-change" id="trackingChange">
+          Active monitoring
+        </span>
+      </div>
+    </div>
+
+    <!-- Filter Tabs -->
+    <div class="section-header">
+      <h2>Your Articles</h2>
+      <div class="filter-tabs">
+        <button class="filter-tab active" data-filter="all">All</button>
+        <button class="filter-tab" data-filter="improved">🎉 Improved</button>
+        <button class="filter-tab" data-filter="stable">📊 Stable</button>
+        <button class="filter-tab" data-filter="declined">⚠️ Needs Attention</button>
+      </div>
+    </div>
+
+    <!-- Articles Grid -->
+    <div class="articles-grid" id="articlesGrid">
+      <!-- Articles will be loaded here -->
+    </div>
+
+    <!-- Performance Chart -->
+    <div class="chart-container" id="chartContainer" style="display: none;">
+      <div class="chart-header">
+        <h3 class="chart-title">Position Tracking Over Time</h3>
+        <div class="chart-period">
+          <button class="period-btn" data-period="7">7 Days</button>
+          <button class="period-btn active" data-period="30">30 Days</button>
+          <button class="period-btn" data-period="90">90 Days</button>
+        </div>
+      </div>
+      <canvas id="positionChart" width="800" height="300"></canvas>
+    </div>
+
+    <!-- Export Section -->
+    <div class="export-section">
+      <h3>📊 Export Your Success Story</h3>
+      <p>Share your SEO wins with clients, team, or stakeholders</p>
+      <div class="export-buttons">
+        <button class="export-btn" onclick="exportReport('pdf')">
+          📄 Export PDF Report
+        </button>
+        <button class="export-btn" onclick="exportReport('csv')">
+          📊 Export CSV Data
+        </button>
+        <button class="export-btn" onclick="exportReport('json')">
+          💾 Export JSON
+        </button>
+        <button class="export-btn" onclick="shareReport()">
+          🔗 Share Link
+        </button>
+      </div>
+    </div>
+
+    <!-- Empty State (shown when no data) -->
+    <div class="empty-state" id="emptyState" style="display: none;">
+      <div class="empty-state-icon">📊</div>
+      <h3>Start Tracking Your SEO Success</h3>
+      <p>Connect Google Search Console to see real-time rankings and traffic data</p>
+      <button class="gsc-connect-btn" onclick="connectGSC()">
+        🔗 Connect Google Search Console
+      </button>
+    </div>
+  </main>
+
+  <script>
+    // Sample data (will be replaced with real API calls)
+    let articlesData = [];
+    let currentFilter = 'all';
+
+    // Initialize dashboard
+    async function initDashboard() {
+      try {
+        // Check if GSC is connected
+        const gscConnected = await checkGSCConnection();
+        
+        if (!gscConnected) {
+          showEmptyState();
+          return;
+        }
+
+        // Load articles data
+        await loadArticlesData();
+        
+        // Update stats
+        updateStats();
+        
+        // Render articles
+        renderArticles();
+        
+        // Load chart
+        loadChart();
+      } catch (error) {
+        console.error('Error initializing dashboard:', error);
+      }
+    }
+
+    async function checkGSCConnection() {
+      // TODO: Implement API call to check GSC connection
+      // For now, return false to show empty state
+      return false;
+    }
+
+    async function loadArticlesData() {
+      // TODO: Implement API call to fetch articles
+      // Sample data for demonstration
+      articlesData = [
+        {
+          id: 1,
+          title: 'Best Casino Bonuses 2025',
+          url: 'https://example.com/casino-bonuses',
+          keyword: 'casino bonuses',
+          status: 'improved',
+          baselinePosition: 12,
+          currentPosition: 8,
+          baselineClicks: 50,
+          currentClicks: 120,
+          optimizationDate: '2025-11-01',
+          lastChecked: '2025-11-10'
+        },
+        {
+          id: 2,
+          title: 'Top SEO Tools for 2025',
+          url: 'https://example.com/seo-tools',
+          keyword: 'seo tools',
+          status: 'stable',
+          baselinePosition: 5,
+          currentPosition: 5,
+          baselineClicks: 200,
+          currentClicks: 210,
+          optimizationDate: '2025-10-15',
+          lastChecked: '2025-11-10'
+        }
+      ];
+    }
+
+    function updateStats() {
+      const improved = articlesData.filter(a => a.status === 'improved').length;
+      const declined = articlesData.filter(a => a.status === 'declined').length;
+      const stable = articlesData.filter(a => a.status === 'stable').length;
+      
+      const avgPositionChange = articlesData.reduce((sum, a) => {
+        return sum + (a.baselinePosition - a.currentPosition);
+      }, 0) / articlesData.length || 0;
+      
+      const totalBaselineClicks = articlesData.reduce((sum, a) => sum + a.baselineClicks, 0);
+      const totalCurrentClicks = articlesData.reduce((sum, a) => sum + a.currentClicks, 0);
+      const trafficIncrease = totalBaselineClicks > 0 
+        ? ((totalCurrentClicks - totalBaselineClicks) / totalBaselineClicks * 100).toFixed(0)
+        : 0;
+      
+      document.getElementById('articlesImproved').textContent = improved;
+      document.getElementById('avgPositionChange').textContent = avgPositionChange > 0 
+        ? `+${avgPositionChange.toFixed(1)}` 
+        : avgPositionChange.toFixed(1);
+      document.getElementById('trafficIncrease').textContent = `+${trafficIncrease}%`;
+      document.getElementById('totalTracking').textContent = articlesData.length;
+      
+      document.getElementById('improvedChange').textContent = `↑ ${improved} this week`;
+      document.getElementById('trafficChange').textContent = `↑ ${totalCurrentClicks - totalBaselineClicks} more clicks`;
+    }
+
+    function renderArticles() {
+      const grid = document.getElementById('articlesGrid');
+      const filtered = currentFilter === 'all' 
+        ? articlesData 
+        : articlesData.filter(a => a.status === currentFilter);
+      
+      if (filtered.length === 0) {
+        grid.innerHTML = '<div class="empty-state"><p>No articles found for this filter</p></div>';
+        return;
+      }
+      
+      grid.innerHTML = filtered.map(article => `
+        <div class="article-card ${article.status}">
+          <div class="article-header">
+            <div>
+              <div class="article-title">${article.title}</div>
+              <a href="${article.url}" class="article-url" target="_blank">${article.url}</a>
+            </div>
+            <span class="status-badge ${article.status}">${article.status}</span>
+          </div>
+          
+          <div class="article-metrics">
+            <div class="metric">
+              <div class="metric-label">Position</div>
+              <div class="metric-value">${article.currentPosition}</div>
+              <div class="metric-change ${article.baselinePosition > article.currentPosition ? 'positive' : 'negative'}">
+                ${article.baselinePosition > article.currentPosition ? '↑' : '↓'} 
+                ${Math.abs(article.baselinePosition - article.currentPosition)} spots
+              </div>
+            </div>
+            
+            <div class="metric">
+              <div class="metric-label">Clicks</div>
+              <div class="metric-value">${article.currentClicks}</div>
+              <div class="metric-change ${article.currentClicks > article.baselineClicks ? 'positive' : 'negative'}">
+                ${article.currentClicks > article.baselineClicks ? '↑' : '↓'} 
+                ${Math.abs(article.currentClicks - article.baselineClicks)}
+              </div>
+            </div>
+            
+            <div class="metric">
+              <div class="metric-label">Keyword</div>
+              <div class="metric-value" style="font-size: 0.9rem;">${article.keyword}</div>
+            </div>
+          </div>
+          
+          <div class="timeline">
+            <div class="timeline-item">
+              <div class="timeline-date">${article.optimizationDate}</div>
+              <div class="timeline-content">🔧 Article optimized with RankSmart</div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-date">${article.lastChecked}</div>
+              <div class="timeline-content">
+                ${article.status === 'improved' ? '🎉 Position improved!' : 
+                  article.status === 'declined' ? '⚠️ Position declined' : 
+                  '📊 Position stable'}
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function loadChart() {
+      // TODO: Implement chart using Chart.js or similar
+      // For now, hide the chart container
+      document.getElementById('chartContainer').style.display = 'none';
+    }
+
+    function showEmptyState() {
+      document.getElementById('emptyState').style.display = 'block';
+      document.getElementById('articlesGrid').style.display = 'none';
+      document.getElementById('statsGrid').style.display = 'none';
+    }
+
+    async function connectGSC() {
+      // TODO: Implement GSC OAuth flow
+      alert('Google Search Console connection coming soon!');
+    }
+
+    function exportReport(format) {
+      // TODO: Implement export functionality
+      alert(`Exporting report as ${format.toUpperCase()}...`);
+    }
+
+    function shareReport() {
+      // TODO: Implement share functionality
+      alert('Share link functionality coming soon!');
+    }
+
+    // Filter tabs
+    document.querySelectorAll('.filter-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        currentFilter = tab.dataset.filter;
+        renderArticles();
+      });
+    });
+
+    // Period buttons
+    document.querySelectorAll('.period-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        // TODO: Reload chart with new period
+      });
+    });
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', initDashboard);
+  </script>
+</body>
+</html>
