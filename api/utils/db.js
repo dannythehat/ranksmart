@@ -160,3 +160,99 @@ export async function incrementScanCount(userId) {
     return { success: false, error: error.message };
   }
 }
+
+// ============================================
+// DOMAIN MANAGEMENT FUNCTIONS
+// ============================================
+
+/**
+ * Get user's domains
+ * @param {string} userId - User ID
+ * @returns {Promise<object>} - { data: string[], error: string|null }
+ */
+export async function getUserDomains(userId) {
+  try {
+    const { data: profile, error } = await getUserProfile(userId);
+    
+    if (error) throw error;
+
+    const domains = profile.domains || [];
+    return { data: domains, error: null };
+  } catch (error) {
+    console.error('Get domains error:', error);
+    return { data: [], error: error.message };
+  }
+}
+
+/**
+ * Add domain to user's list
+ * @param {string} userId - User ID
+ * @param {string} domain - Domain to add
+ * @returns {Promise<object>} - { data: string[], error: string|null }
+ */
+export async function addUserDomain(userId, domain) {
+  try {
+    const { data: currentDomains } = await getUserDomains(userId);
+    
+    // Avoid duplicates
+    if (currentDomains.includes(domain)) {
+      return { data: currentDomains, error: null };
+    }
+
+    const updatedDomains = [...currentDomains, domain];
+    
+    const { data, error } = await updateUserProfile(userId, {
+      domains: updatedDomains
+    });
+
+    if (error) throw error;
+    return { data: updatedDomains, error: null };
+  } catch (error) {
+    console.error('Add domain error:', error);
+    return { data: null, error: error.message };
+  }
+}
+
+/**
+ * Remove domain from user's list
+ * @param {string} userId - User ID
+ * @param {string} domain - Domain to remove
+ * @returns {Promise<object>} - { data: string[], error: string|null }
+ */
+export async function removeUserDomain(userId, domain) {
+  try {
+    const { data: currentDomains } = await getUserDomains(userId);
+    
+    const updatedDomains = currentDomains.filter(d => d !== domain);
+    
+    const { data, error } = await updateUserProfile(userId, {
+      domains: updatedDomains
+    });
+
+    if (error) throw error;
+    return { data: updatedDomains, error: null };
+  } catch (error) {
+    console.error('Remove domain error:', error);
+    return { data: null, error: error.message };
+  }
+}
+
+/**
+ * Update all user domains
+ * @param {string} userId - User ID
+ * @param {string[]} domains - Array of domains
+ * @returns {Promise<object>} - { data: string[], error: string|null }
+ */
+export async function updateUserDomains(userId, domains) {
+  try {
+    const { data, error } = await updateUserProfile(userId, {
+      domains: domains
+    });
+
+    if (error) throw error;
+    return { data: domains, error: null };
+  } catch (error) {
+    console.error('Update domains error:', error);
+    return { data: null, error: error.message };
+  }
+}
