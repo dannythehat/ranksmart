@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Content Monitor - RankSmart</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .header {
+      background: white;
+      border-radius: 16px;
+      padding: 30px;
+      margin-bottom: 30px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    }
+
+    .header h1 {
+      font-size: 32px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      color: #666;
+      font-size: 16px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+
+    .stat-card h3 {
+      font-size: 14px;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+    }
+
+    .stat-card .value {
+      font-size: 36px;
+      font-weight: bold;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .stat-card .label {
+      font-size: 14px;
+      color: #999;
+      margin-top: 8px;
+    }
+
+    .actions-bar {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 30px;
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary {
+      background: #f3f4f6;
+      color: #374151;
+    }
+
+    .btn-secondary:hover {
+      background: #e5e7eb;
+    }
+
+    .btn-success {
+      background: #10b981;
+      color: white;
+    }
+
+    .btn-success:hover {
+      background: #059669;
+    }
+
+    .btn-danger {
+      background: #ef4444;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #dc2626;
+    }
+
+    .content-section {
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .section-header h2 {
+      font-size: 24px;
+      color: #1f2937;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 24px;
+      border-bottom: 2px solid #e5e7eb;
+    }
+
+    .tab {
+      padding: 12px 24px;
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      font-size: 14px;
+      font-weight: 600;
+      color: #6b7280;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .tab.active {
+      color: #667eea;
+      border-bottom-color: #667eea;
+    }
+
+    .monitor-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .monitor-card {
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 20px;
+      transition: all 0.3s;
+    }
+
+    .monitor-card:hover {
+      border-color: #667eea;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+    }
+
+    .monitor-card.selected {
+      border-color: #667eea;
+      background: #f9fafb;
+    }
+
+    .monitor-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 12px;
+    }
+
+    .monitor-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 4px;
+    }
+
+    .monitor-url {
+      font-size: 14px;
+      color: #6b7280;
+      word-break: break-all;
+    }
+
+    .monitor-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .status-active {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .status-paused {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .status-error {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .monitor-meta {
+      display: flex;
+      gap: 20px;
+      margin-top: 12px;
+      font-size: 14px;
+      color: #6b7280;
+    }
+
+    .monitor-meta span {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .monitor-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .btn-small {
+      padding: 8px 16px;
+      font-size: 13px;
+    }
+
+    .checkbox {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 16px;
+      padding: 30px;
+      max-width: 600px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .modal-header h2 {
+      font-size: 24px;
+      color: #1f2937;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 24px;
+      color: #6b7280;
+      cursor: pointer;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 8px;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: border-color 0.3s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #6b7280;
+    }
+
+    .empty-state svg {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 20px;
+      opacity: 0.3;
+    }
+
+    .empty-state h3 {
+      font-size: 20px;
+      margin-bottom: 8px;
+    }
+
+    .empty-state p {
+      font-size: 14px;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #6b7280;
+    }
+
+    .spinner {
+      border: 3px solid #f3f4f6;
+      border-top: 3px solid #667eea;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 16px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: #e5e7eb;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 12px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+      transition: width 0.3s;
+    }
+
+    .change-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    @media (max-width: 768px) {
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .actions-bar {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <h1>🔍 Content Monitor</h1>
+      <p>Track content changes and automate updates across your monitored URLs</p>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <h3>Total Monitored</h3>
+        <div class="value" id="totalMonitored">0</div>
+        <div class="label">Active URLs</div>
+      </div>
+      <div class="stat-card">
+        <h3>Changes Detected</h3>
+        <div class="value" id="totalChanges">0</div>
+        <div class="label">Last 30 days</div>
+      </div>
+      <div class="stat-card">
+        <h3>Last Check</h3>
+        <div class="value" id="lastCheck">--</div>
+        <div class="label">Most recent</div>
+      </div>
+      <div class="stat-card">
+        <h3>Auto-Updates</h3>
+        <div class="value" id="autoUpdates">0</div>
+        <div class="label">Enabled</div>
+      </div>
+    </div>
+
+    <!-- Actions Bar -->
+    <div class="actions-bar">
+      <button class="btn btn-primary" onclick="openAddModal()">
+        ➕ Add URL to Monitor
+      </button>
+      <button class="btn btn-success" id="bulkRefreshBtn" onclick="bulkRefresh()" disabled>
+        🔄 Refresh Selected
+      </button>
+      <button class="btn btn-secondary" id="bulkOptimizeBtn" onclick="bulkOptimize()" disabled>
+        ⚡ Optimize Selected
+      </button>
+      <button class="btn btn-secondary" id="bulkFixBtn" onclick="bulkFix()" disabled>
+        🔧 Fix Selected
+      </button>
+      <button class="btn btn-danger" id="bulkDeleteBtn" onclick="bulkDelete()" disabled>
+        🗑️ Delete Selected
+      </button>
+    </div>
+
+    <!-- Content Section -->
+    <div class="content-section">
+      <div class="section-header">
+        <h2>Monitored URLs</h2>
+        <button class="btn btn-secondary btn-small" onclick="loadMonitored()">
+          🔄 Refresh List
+        </button>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab active" onclick="filterByStatus('all')">All</button>
+        <button class="tab" onclick="filterByStatus('active')">Active</button>
+        <button class="tab" onclick="filterByStatus('paused')">Paused</button>
+        <button class="tab" onclick="filterByStatus('error')">Errors</button>
+      </div>
+
+      <!-- Monitor List -->
+      <div id="monitorList" class="monitor-list">
+        <div class="loading">
+          <div class="spinner"></div>
+          <p>Loading monitored URLs...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add URL Modal -->
+  <div id="addModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Add URL to Monitor</h2>
+        <button class="close-btn" onclick="closeAddModal()">×</button>
+      </div>
+      <form id="addForm" onsubmit="addMonitor(event)">
+        <div class="form-group">
+          <label>URL *</label>
+          <input type="url" id="urlInput" placeholder="https://example.com/article" required>
+        </div>
+        <div class="form-group">
+          <label>Check Frequency</label>
+          <select id="frequencyInput">
+            <option value="hourly">Hourly</option>
+            <option value="daily" selected>Daily</option>
+            <option value="weekly">Weekly</option>
+            <option value="monthly">Monthly</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>
+            <input type="checkbox" id="notifyInput" checked>
+            Notify me when changes are detected
+          </label>
+        </div>
+        <div class="form-group">
+          <label>
+            <input type="checkbox" id="autoUpdateInput">
+            Automatically apply high-priority fixes
+          </label>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%;">
+          Add to Monitor
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Mock user ID (replace with actual auth)
+    const userId = 'demo-user-123';
+    let monitoredUrls = [];
+    let selectedMonitors = new Set();
+    let currentFilter = 'all';
+
+    // Load monitored URLs on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      loadMonitored();
+    });
+
+    // Load monitored URLs
+    async function loadMonitored() {
+      try {
+        const response = await fetch(`/api/monitor/track?userId=${userId}`);
+        const data = await response.json();
+
+        if (data.success) {
+          monitoredUrls = data.monitored || [];
+          updateStats();
+          renderMonitorList();
+        }
+      } catch (error) {
+        console.error('Failed to load monitored URLs:', error);
+        showError('Failed to load monitored URLs');
+      }
+    }
+
+    // Update stats
+    function updateStats() {
+      const active = monitoredUrls.filter(m => m.status === 'active').length;
+      const totalChanges = monitoredUrls.reduce((sum, m) => sum + (m.changes_detected || 0), 0);
+      const autoUpdates = monitoredUrls.filter(m => m.auto_update).length;
+      
+      const lastChecked = monitoredUrls
+        .filter(m => m.last_checked)
+        .sort((a, b) => new Date(b.last_checked) - new Date(a.last_checked))[0];
+
+      document.getElementById('totalMonitored').textContent = active;
+      document.getElementById('totalChanges').textContent = totalChanges;
+      document.getElementById('autoUpdates').textContent = autoUpdates;
+      document.getElementById('lastCheck').textContent = lastChecked 
+        ? formatTimeAgo(lastChecked.last_checked)
+        : '--';
+    }
+
+    // Render monitor list
+    function renderMonitorList() {
+      const container = document.getElementById('monitorList');
+      
+      const filtered = currentFilter === 'all' 
+        ? monitoredUrls 
+        : monitoredUrls.filter(m => m.status === currentFilter);
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+            <h3>No monitored URLs</h3>
+            <p>Add URLs to start monitoring content changes</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filtered.map(monitor => `
+        <div class="monitor-card ${selectedMonitors.has(monitor.id) ? 'selected' : ''}" id="monitor-${monitor.id}">
+          <div class="monitor-header">
+            <div style="flex: 1;">
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <input type="checkbox" class="checkbox" 
+                  ${selectedMonitors.has(monitor.id) ? 'checked' : ''}
+                  onchange="toggleSelect('${monitor.id}')">
+                <div>
+                  <div class="monitor-title">${monitor.title || 'Untitled'}</div>
+                  <div class="monitor-url">${monitor.url}</div>
+                </div>
+              </div>
+            </div>
+            <span class="monitor-status status-${monitor.status}">
+              ${monitor.status === 'active' ? '✓' : monitor.status === 'paused' ? '⏸' : '⚠'} 
+              ${monitor.status}
+            </span>
+          </div>
+          
+          <div class="monitor-meta">
+            <span>📅 ${monitor.check_frequency}</span>
+            <span>🔍 Last checked: ${formatTimeAgo(monitor.last_checked)}</span>
+            ${monitor.changes_detected > 0 ? `
+              <span class="change-badge">
+                🔔 ${monitor.changes_detected} change${monitor.changes_detected > 1 ? 's' : ''}
+              </span>
+            ` : ''}
+          </div>
+
+          <div class="monitor-actions">
+            <button class="btn btn-secondary btn-small" onclick="checkNow('${monitor.id}')">
+              🔍 Check Now
+            </button>
+            <button class="btn btn-secondary btn-small" onclick="viewChanges('${monitor.id}')">
+              📊 View Changes
+            </button>
+            <button class="btn btn-secondary btn-small" onclick="togglePause('${monitor.id}', '${monitor.status}')">
+              ${monitor.status === 'active' ? '⏸ Pause' : '▶ Resume'}
+            </button>
+            <button class="btn btn-danger btn-small" onclick="deleteMonitor('${monitor.id}')">
+              🗑️ Delete
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Toggle selection
+    function toggleSelect(id) {
+      if (selectedMonitors.has(id)) {
+        selectedMonitors.delete(id);
+      } else {
+        selectedMonitors.add(id);
+      }
+      
+      updateBulkButtons();
+      renderMonitorList();
+    }
+
+    // Update bulk action buttons
+    function updateBulkButtons() {
+      const hasSelection = selectedMonitors.size > 0;
+      document.getElementById('bulkRefreshBtn').disabled = !hasSelection;
+      document.getElementById('bulkOptimizeBtn').disabled = !hasSelection;
+      document.getElementById('bulkFixBtn').disabled = !hasSelection;
+      document.getElementById('bulkDeleteBtn').disabled = !hasSelection;
+    }
+
+    // Filter by status
+    function filterByStatus(status) {
+      currentFilter = status;
+      
+      // Update tab active state
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      event.target.classList.add('active');
+      
+      renderMonitorList();
+    }
+
+    // Open add modal
+    function openAddModal() {
+      document.getElementById('addModal').classList.add('active');
+    }
+
+    // Close add modal
+    function closeAddModal() {
+      document.getElementById('addModal').classList.remove('active');
+      document.getElementById('addForm').reset();
+    }
+
+    // Add monitor
+    async function addMonitor(event) {
+      event.preventDefault();
+      
+      const url = document.getElementById('urlInput').value;
+      const frequency = document.getElementById('frequencyInput').value;
+      const notify = document.getElementById('notifyInput').checked;
+      const autoUpdate = document.getElementById('autoUpdateInput').checked;
+
+      try {
+        const response = await fetch('/api/monitor/track', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId,
+            url,
+            checkFrequency: frequency,
+            notifyOnChange: notify,
+            autoUpdate
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          closeAddModal();
+          loadMonitored();
+          showSuccess('URL added to monitoring');
+        } else {
+          showError(data.error || 'Failed to add URL');
+        }
+      } catch (error) {
+        console.error('Add monitor error:', error);
+        showError('Failed to add URL to monitoring');
+      }
+    }
+
+    // Check now
+    async function checkNow(id) {
+      try {
+        const response = await fetch('/api/monitor/check', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ monitorId: id, userId })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          loadMonitored();
+          showSuccess(data.message);
+        } else {
+          showError(data.error || 'Check failed');
+        }
+      } catch (error) {
+        console.error('Check error:', error);
+        showError('Failed to check for changes');
+      }
+    }
+
+    // Bulk refresh
+    async function bulkRefresh() {
+      if (selectedMonitors.size === 0) return;
+
+      try {
+        const response = await fetch('/api/monitor/bulk-update', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId,
+            name: 'Bulk Refresh',
+            monitorIds: Array.from(selectedMonitors),
+            updateType: 'refresh'
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          showSuccess('Bulk refresh started');
+          selectedMonitors.clear();
+          updateBulkButtons();
+          renderMonitorList();
+        }
+      } catch (error) {
+        console.error('Bulk refresh error:', error);
+        showError('Failed to start bulk refresh');
+      }
+    }
+
+    // Bulk optimize
+    async function bulkOptimize() {
+      if (selectedMonitors.size === 0) return;
+
+      try {
+        const response = await fetch('/api/monitor/bulk-update', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId,
+            name: 'Bulk Optimize',
+            monitorIds: Array.from(selectedMonitors),
+            updateType: 'optimize'
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          showSuccess('Bulk optimization started');
+          selectedMonitors.clear();
+          updateBulkButtons();
+          renderMonitorList();
+        }
+      } catch (error) {
+        console.error('Bulk optimize error:', error);
+        showError('Failed to start bulk optimization');
+      }
+    }
+
+    // Bulk fix
+    async function bulkFix() {
+      if (selectedMonitors.size === 0) return;
+
+      if (!confirm(`Apply high-priority fixes to ${selectedMonitors.size} URL(s)?`)) {
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/monitor/bulk-update', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId,
+            name: 'Bulk Fix',
+            monitorIds: Array.from(selectedMonitors),
+            updateType: 'fix'
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          showSuccess('Bulk fix started');
+          selectedMonitors.clear();
+          updateBulkButtons();
+          renderMonitorList();
+        }
+      } catch (error) {
+        console.error('Bulk fix error:', error);
+        showError('Failed to start bulk fix');
+      }
+    }
+
+    // Bulk delete
+    async function bulkDelete() {
+      if (selectedMonitors.size === 0) return;
+
+      if (!confirm(`Delete ${selectedMonitors.size} monitored URL(s)?`)) {
+        return;
+      }
+
+      try {
+        for (const id of selectedMonitors) {
+          await fetch(`/api/monitor/track?id=${id}`, { method: 'DELETE' });
+        }
+
+        selectedMonitors.clear();
+        updateBulkButtons();
+        loadMonitored();
+        showSuccess('Selected URLs deleted');
+      } catch (error) {
+        console.error('Bulk delete error:', error);
+        showError('Failed to delete URLs');
+      }
+    }
+
+    // Toggle pause
+    async function togglePause(id, currentStatus) {
+      const newStatus = currentStatus === 'active' ? 'paused' : 'active';
+
+      try {
+        const response = await fetch('/api/monitor/track', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id, status: newStatus })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          loadMonitored();
+          showSuccess(`Monitoring ${newStatus === 'active' ? 'resumed' : 'paused'}`);
+        }
+      } catch (error) {
+        console.error('Toggle pause error:', error);
+        showError('Failed to update status');
+      }
+    }
+
+    // Delete monitor
+    async function deleteMonitor(id) {
+      if (!confirm('Delete this monitored URL?')) return;
+
+      try {
+        const response = await fetch(`/api/monitor/track?id=${id}`, {
+          method: 'DELETE'
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          loadMonitored();
+          showSuccess('Monitored URL deleted');
+        }
+      } catch (error) {
+        console.error('Delete error:', error);
+        showError('Failed to delete');
+      }
+    }
+
+    // View changes
+    function viewChanges(id) {
+      // TODO: Implement change history viewer
+      alert('Change history viewer coming soon!');
+    }
+
+    // Format time ago
+    function formatTimeAgo(timestamp) {
+      if (!timestamp) return 'Never';
+      
+      const now = new Date();
+      const then = new Date(timestamp);
+      const seconds = Math.floor((now - then) / 1000);
+
+      if (seconds < 60) return 'Just now';
+      if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+      if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+      return `${Math.floor(seconds / 86400)}d ago`;
+    }
+
+    // Show success message
+    function showSuccess(message) {
+      alert(message); // Replace with toast notification
+    }
+
+    // Show error message
+    function showError(message) {
+      alert('Error: ' + message); // Replace with toast notification
+    }
+  </script>
+</body>
+</html>
