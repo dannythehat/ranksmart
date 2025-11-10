@@ -144,7 +144,7 @@ export function getAuthHeader() {
   return token ? `Bearer ${token}` : '';
 }
 
-// API base URL (will be replaced with actual Vercel URL)
+// API base URL - Updated with production Vercel deployment
 const API_BASE_URL = window.location.hostname === 'localhost' 
   ? 'http://localhost:3000/api'
-  : 'https://your-vercel-app.vercel.app/api';
+  : 'https://ranksmart-ep4vmbybn-rank-smart.vercel.app/api';
