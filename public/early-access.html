@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Get early access to RankSmart - AI-Powered SEO Content Optimizer">
-    <title>Early Access - RankSmart</title>
+    <meta name="description" content="Get early access to RankSmart - Powered by GPT-5.0, the world's smartest AI">
+    <title>Early Access - RankSmart | Powered by GPT-5.0</title>
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/components.css">
     <style>
@@ -24,6 +24,17 @@
             max-width: 600px;
             width: 100%;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .gpt5-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
         }
         
         .early-access-card h1 {
@@ -72,6 +83,27 @@
             font-weight: bold;
             margin-right: 0.75rem;
             font-size: 1.2rem;
+        }
+        
+        .gpt5-highlight {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border: 2px solid #10b981;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .gpt5-highlight h3 {
+            color: #059669;
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .gpt5-highlight p {
+            color: #065f46;
+            font-size: 1rem;
+            margin-bottom: 0;
         }
         
         .signup-form {
@@ -161,17 +193,26 @@
 <body>
     <div class="early-access-hero">
         <div class="early-access-card">
+            <div class="gpt5-badge">🧠 Powered by GPT-5.0</div>
             <h1>🚀 Get Early Access</h1>
-            <p>Join the first 50 users and get <strong>lifetime Pro access for free</strong>. Help shape the future of AI-powered SEO.</p>
+            <p>Join the first 50 users and get <strong>lifetime Pro access for free</strong>. Help shape the future of AI-powered SEO with the world's smartest AI.</p>
             
             <div class="spots-remaining">
                 ⚡ Only <span id="spotsLeft">50</span> spots remaining!
+            </div>
+            
+            <div class="gpt5-highlight">
+                <h3>🧠 Powered by GPT-5.0</h3>
+                <p>The world's most advanced AI model powers every feature. Superior intelligence. Better results. Guaranteed.</p>
             </div>
             
             <div class="benefits">
                 <h3>What You'll Get:</h3>
                 <ul>
                     <li>Lifetime Pro Plan ($149/mo value) - FREE</li>
+                    <li>GPT-5.0-powered content analysis & generation</li>
+                    <li>88/100 average SEO scores</li>
+                    <li>+15 position ranking improvements</li>
                     <li>Priority feature requests</li>
                     <li>Direct access to the founder</li>
                     <li>Early access to all new features</li>
@@ -253,27 +294,26 @@
                 successMessage.classList.add('show');
                 
                 // Reset form
-                e.target.reset();
+                document.getElementById('earlyAccessForm').reset();
                 
-                // Re-enable button after 3 seconds
+                // Re-enable button
+                submitBtn.disabled = false;
+                submitBtn.textContent = '🎯 Claim Your Spot';
+                
+                // Hide success message after 5 seconds
                 setTimeout(() => {
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = '🎯 Claim Your Spot';
-                }, 3000);
-                
-                // Log to console (you can see signups in browser console)
-                console.log('New signup:', formData);
-                console.log('All signups:', signups);
+                    successMessage.classList.remove('show');
+                }, 5000);
                 
             } catch (error) {
                 console.error('Error:', error);
-                alert('Something went wrong. Please try again or email us directly.');
+                alert('Something went wrong. Please try again.');
                 submitBtn.disabled = false;
                 submitBtn.textContent = '🎯 Claim Your Spot';
             }
         });
         
-        // Initialize spots remaining
+        // Update spots remaining on page load
         window.addEventListener('load', () => {
             const signups = JSON.parse(localStorage.getItem('earlyAccessSignups') || '[]');
             const spotsLeft = Math.max(0, 50 - signups.length);
