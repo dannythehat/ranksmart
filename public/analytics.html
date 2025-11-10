@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analytics Dashboard - RankSmart</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .header {
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      margin-bottom: 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+    .header h1 {
+      font-size: 32px;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      color: #666;
+      font-size: 16px;
+    }
+
+    .timeframe-selector {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .timeframe-btn {
+      padding: 10px 20px;
+      border: 2px solid #667eea;
+      background: white;
+      color: #667eea;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .timeframe-btn.active {
+      background: #667eea;
+      color: white;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+    .stat-label {
+      color: #666;
+      font-size: 14px;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .stat-value {
+      font-size: 36px;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .stat-trend {
+      font-size: 14px;
+      color: #10b981;
+    }
+
+    .stat-trend.down {
+      color: #ef4444;
+    }
+
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .chart-card {
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+    .chart-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    .chart-placeholder {
+      height: 300px;
+      background: #f3f4f6;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #9ca3af;
+    }
+
+    .tables-section {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+      gap: 20px;
+    }
+
+    .table-card {
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+    .table-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      text-align: left;
+      padding: 12px;
+      background: #f9fafb;
+      color: #666;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    td {
+      padding: 12px;
+      border-top: 1px solid #e5e7eb;
+      color: #333;
+    }
+
+    .score-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .score-excellent {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .score-good {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+
+    .score-fair {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .score-poor {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: white;
+      font-size: 18px;
+    }
+
+    .error {
+      background: #fee2e2;
+      color: #991b1b;
+      padding: 20px;
+      border-radius: 10px;
+      margin: 20px 0;
+    }
+
+    .back-btn {
+      display: inline-block;
+      padding: 12px 24px;
+      background: white;
+      color: #667eea;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      transition: all 0.3s;
+    }
+
+    .back-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    @media (max-width: 768px) {
+      .charts-grid,
+      .tables-section {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="/dashboard.html" class="back-btn">← Back to Dashboard</a>
+
+    <div class="header">
+      <h1>📊 Analytics Dashboard</h1>
+      <p>Comprehensive insights into your SEO performance</p>
+      
+      <div class="timeframe-selector">
+        <button class="timeframe-btn" data-timeframe="7d">Last 7 Days</button>
+        <button class="timeframe-btn active" data-timeframe="30d">Last 30 Days</button>
+        <button class="timeframe-btn" data-timeframe="90d">Last 90 Days</button>
+      </div>
+    </div>
+
+    <div id="loading" class="loading">Loading analytics...</div>
+    <div id="error" class="error" style="display: none;"></div>
+
+    <div id="content" style="display: none;">
+      <!-- Overview Stats -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Total Audits</div>
+          <div class="stat-value" id="total-audits">0</div>
+          <div class="stat-trend" id="audits-trend">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Average Score</div>
+          <div class="stat-value" id="avg-score">0</div>
+          <div class="stat-trend" id="score-trend">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Active Monitors</div>
+          <div class="stat-value" id="active-monitors">0</div>
+          <div class="stat-trend" id="monitors-trend">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Changes Detected</div>
+          <div class="stat-value" id="changes-detected">0</div>
+          <div class="stat-trend" id="changes-trend">—</div>
+        </div>
+      </div>
+
+      <!-- Charts -->
+      <div class="charts-grid">
+        <div class="chart-card">
+          <div class="chart-title">Score Trend</div>
+          <div class="chart-placeholder" id="score-chart">
+            Chart visualization would go here
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Audit Volume</div>
+          <div class="chart-placeholder" id="volume-chart">
+            Chart visualization would go here
+          </div>
+        </div>
+      </div>
+
+      <!-- Tables -->
+      <div class="tables-section">
+        <div class="table-card">
+          <div class="table-title">🏆 Top Performing Pages</div>
+          <table id="top-pages-table">
+            <thead>
+              <tr>
+                <th>URL</th>
+                <th>Score</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody id="top-pages-body">
+              <tr><td colspan="3" style="text-align: center; color: #9ca3af;">No data available</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="table-card">
+          <div class="table-title">⚠️ Pages Needing Attention</div>
+          <table id="needs-attention-table">
+            <thead>
+              <tr>
+                <th>URL</th>
+                <th>Score</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody id="needs-attention-body">
+              <tr><td colspan="3" style="text-align: center; color: #9ca3af;">No data available</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentTimeframe = '30d';
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      loadAnalytics();
+      setupTimeframeButtons();
+    });
+
+    function setupTimeframeButtons() {
+      document.querySelectorAll('.timeframe-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.timeframe-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentTimeframe = btn.dataset.timeframe;
+          loadAnalytics();
+        });
+      });
+    }
+
+    async function loadAnalytics() {
+      const loading = document.getElementById('loading');
+      const error = document.getElementById('error');
+      const content = document.getElementById('content');
+
+      loading.style.display = 'block';
+      error.style.display = 'none';
+      content.style.display = 'none';
+
+      try {
+        const token = localStorage.getItem('auth_token');
+        if (!token) {
+          throw new Error('Not authenticated');
+        }
+
+        const response = await fetch(`/api/analytics/dashboard?timeframe=${currentTimeframe}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to load analytics');
+        }
+
+        const data = await response.json();
+        displayAnalytics(data.analytics);
+
+        loading.style.display = 'none';
+        content.style.display = 'block';
+
+      } catch (err) {
+        console.error('Analytics error:', err);
+        loading.style.display = 'none';
+        error.style.display = 'block';
+        error.textContent = err.message || 'Failed to load analytics';
+      }
+    }
+
+    function displayAnalytics(analytics) {
+      // Overview stats
+      document.getElementById('total-audits').textContent = analytics.overview.total_audits;
+      document.getElementById('avg-score').textContent = analytics.overview.average_score.toFixed(1);
+      document.getElementById('active-monitors').textContent = analytics.overview.active_monitors;
+      document.getElementById('changes-detected').textContent = analytics.overview.changes_detected;
+
+      // Top performing pages
+      const topPagesBody = document.getElementById('top-pages-body');
+      if (analytics.pages.top_performing.length > 0) {
+        topPagesBody.innerHTML = analytics.pages.top_performing.map(page => `
+          <tr>
+            <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+              ${page.url}
+            </td>
+            <td><span class="score-badge ${getScoreClass(page.score)}">${page.score}</span></td>
+            <td>${new Date(page.date).toLocaleDateString()}</td>
+          </tr>
+        `).join('');
+      }
+
+      // Pages needing attention
+      const needsAttentionBody = document.getElementById('needs-attention-body');
+      if (analytics.pages.needs_attention.length > 0) {
+        needsAttentionBody.innerHTML = analytics.pages.needs_attention.map(page => `
+          <tr>
+            <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+              ${page.url}
+            </td>
+            <td><span class="score-badge ${getScoreClass(page.score)}">${page.score}</span></td>
+            <td>${new Date(page.date).toLocaleDateString()}</td>
+          </tr>
+        `).join('');
+      }
+    }
+
+    function getScoreClass(score) {
+      if (score >= 90) return 'score-excellent';
+      if (score >= 70) return 'score-good';
+      if (score >= 50) return 'score-fair';
+      return 'score-poor';
+    }
+  </script>
+</body>
+</html>
