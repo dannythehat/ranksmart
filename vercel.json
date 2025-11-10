@@ -25,6 +25,10 @@
     {
       "path": "/api/cron/check-monitored",
       "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/cron/check-positions",
+      "schedule": "0 2 * * *"
     }
   ],
   "env": {
