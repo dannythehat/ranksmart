@@ -2,9 +2,16 @@
  * Mode 2: Apply Fixes Endpoint
  * Applies SEO fixes with surgical precision
  * Powered by ChatGPT-5 Content Surgery Brain
+ * Now with visual diff highlighting
  */
 
 import { contentSurgeryBrain, getUsageStats } from '../utils/ai-brain.js';
+import { 
+  generateVisualDiff, 
+  generateHTMLDiff, 
+  generateSideBySideDiff,
+  generateDiffSummary 
+} from '../utils/diff-generator.js';
 
 export default async function handler(req, res) {
   // Enable CORS
@@ -75,8 +82,13 @@ export default async function handler(req, res) {
     const improvedWordCount = result.improvedContent.split(/\s+/).length;
     const wordCountChange = improvedWordCount - originalWordCount;
 
-    // Generate diff preview
-    const diffPreview = generateDiffPreview(originalContent, result.improvedContent);
+    // Generate visual diff
+    console.log('[MODE 2] 🎨 Generating visual diff...');
+    const visualDiff = generateVisualDiff(originalContent, result.improvedContent);
+    const diffSummary = generateDiffSummary(originalContent, result.improvedContent);
+    const htmlDiff = generateHTMLDiff(originalContent, result.improvedContent, true);
+    const htmlDiffHighlightOnly = generateHTMLDiff(originalContent, result.improvedContent, false);
+    const sideBySideDiff = generateSideBySideDiff(originalContent, result.improvedContent);
 
     const executionTime = Date.now() - startTime;
     const usageStats = getUsageStats();
@@ -86,9 +98,19 @@ export default async function handler(req, res) {
       data: {
         // Improved content
         improvedContent: result.improvedContent,
+        originalContent: originalContent,
 
         // Changes made
         changes: result.changesMade || [],
+
+        // Visual diff data
+        diff: {
+          summary: diffSummary,
+          segments: visualDiff.segments,
+          changes: visualDiff.changes,
+          totalChanges: visualDiff.totalChanges,
+          changePercentage: visualDiff.changePercentage,
+        },
 
         // Metrics comparison
         metrics: {
@@ -109,14 +131,20 @@ export default async function handler(req, res) {
           }
         },
 
-        // Diff preview (for UI display)
-        diffPreview: diffPreview,
-
         // Export options
         exports: {
-          html: convertToHTML(result.improvedContent),
+          // Clean exports (no highlighting)
+          html: convertToHTML(result.improvedContent, false),
           markdown: result.improvedContent,
-          diff: generateFullDiff(originalContent, result.improvedContent),
+          
+          // Highlighted exports (for training/review)
+          htmlWithHighlights: convertToHTML(result.improvedContent, true, visualDiff),
+          htmlDiff: htmlDiff,
+          htmlDiffHighlightOnly: htmlDiffHighlightOnly,
+          sideBySideDiff: sideBySideDiff,
+          
+          // Text diff
+          textDiff: generateTextDiff(originalContent, result.improvedContent),
         },
 
         // Summary
@@ -142,6 +170,7 @@ export default async function handler(req, res) {
 
     console.log(`[MODE 2] 🎉 COMPLETE in ${(executionTime / 1000).toFixed(2)}s`);
     console.log(`[MODE 2] 📈 Score increase: +${result.metricsImprovement?.estimatedScoreIncrease || 0}`);
+    console.log(`[MODE 2] 🎨 Diff: ${diffSummary.summary}`);
     console.log(`[MODE 2] 💰 Cost: $${usageStats.totalCost.toFixed(4)}`);
 
     return res.status(200).json(response);
@@ -183,32 +212,9 @@ function calculateScore(content) {
 }
 
 /**
- * Generate diff preview (first 5 changes)
+ * Generate text diff
  */
-function generateDiffPreview(original, improved) {
-  const originalLines = original.split('\n');
-  const improvedLines = improved.split('\n');
-
-  const changes = [];
-  const maxChanges = 5;
-
-  for (let i = 0; i < Math.min(originalLines.length, improvedLines.length) && changes.length < maxChanges; i++) {
-    if (originalLines[i] !== improvedLines[i]) {
-      changes.push({
-        lineNumber: i + 1,
-        before: originalLines[i].substring(0, 100),
-        after: improvedLines[i].substring(0, 100),
-      });
-    }
-  }
-
-  return changes;
-}
-
-/**
- * Generate full diff
- */
-function generateFullDiff(original, improved) {
+function generateTextDiff(original, improved) {
   const originalLines = original.split('\n');
   const improvedLines = improved.split('\n');
 
@@ -230,15 +236,15 @@ function generateFullDiff(original, improved) {
 }
 
 /**
- * Convert markdown to HTML
+ * Convert markdown to HTML with optional highlighting
  */
-function convertToHTML(markdown) {
+function convertToHTML(markdown, withHighlights = false, visualDiff = null) {
   let html = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Improved Content</title>
+  <title>Improved Content${withHighlights ? ' (With Highlights)' : ''}</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
@@ -256,9 +262,31 @@ function convertToHTML(markdown) {
     em { font-style: italic; }
     ul, ol { margin: 1em 0; padding-left: 2em; }
     li { margin: 0.5em 0; }
+    
+    /* Highlighting styles */
+    .seo-added {
+      background: #d4edda;
+      border-left: 3px solid #28a745;
+      padding: 2px 4px;
+      margin: 0 2px;
+    }
+    .seo-modified {
+      background: #fff3cd;
+      border-left: 3px solid #ffc107;
+      padding: 2px 4px;
+      margin: 0 2px;
+    }
+    
+    @media print {
+      .seo-added, .seo-modified {
+        border-left: none;
+        background: transparent;
+      }
+    }
   </style>
 </head>
 <body>
+  ${withHighlights ? '<div class="highlight-notice" style="background: #e7f3ff; padding: 10px; margin-bottom: 20px; border-left: 4px solid #0066cc;"><strong>Note:</strong> Highlighted sections show SEO improvements. Green = additions, Yellow = modifications.</div>' : ''}
   <article>
 `;
 
@@ -272,6 +300,22 @@ function convertToHTML(markdown) {
     .replace(/\n\n/g, '</p><p>')
     .replace(/^- (.+)$/gm, '<li>$1</li>')
     .replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
+
+  // Add highlighting if requested
+  if (withHighlights && visualDiff) {
+    // This is a simplified version - in production, you'd want more sophisticated highlighting
+    visualDiff.segments.forEach(segment => {
+      if (segment.type === 'added') {
+        const escapedContent = segment.content.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        bodyHtml = bodyHtml.replace(new RegExp(escapedContent, 'g'), 
+          `<span class="seo-added">${segment.content}</span>`);
+      } else if (segment.type === 'modified') {
+        const escapedContent = segment.improved.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        bodyHtml = bodyHtml.replace(new RegExp(escapedContent, 'g'), 
+          `<span class="seo-modified">${segment.improved}</span>`);
+      }
+    });
+  }
 
   html += `    ${bodyHtml}
   </article>
