@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Link Building - RankSmart</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <style>
+        .link-building-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .tab {
+            padding: 1rem 1.5rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #6b7280;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Analyze Tab */
+        .analyze-form {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .form-group textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-family: inherit;
+            resize: vertical;
+        }
+
+        .target-pages {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .target-page-item {
+            display: grid;
+            grid-template-columns: 2fr 2fr 1fr auto;
+            gap: 1rem;
+            align-items: center;
+            padding: 1rem;
+            background: #f9fafb;
+            border-radius: 8px;
+        }
+
+        .target-page-item input {
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        /* Opportunities */
+        .opportunities-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .opportunity-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-left: 4px solid #667eea;
+        }
+
+        .opportunity-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1rem;
+        }
+
+        .opportunity-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 0.5rem;
+        }
+
+        .relevance-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .relevance-high {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .relevance-medium {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .relevance-low {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .opportunity-details {
+            margin: 1rem 0;
+        }
+
+        .detail-row {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .detail-label {
+            font-weight: 500;
+            color: #6b7280;
+        }
+
+        .detail-value {
+            color: #111827;
+        }
+
+        .context-box {
+            background: #f9fafb;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            font-size: 0.875rem;
+            line-height: 1.6;
+            color: #374151;
+        }
+
+        .opportunity-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        /* Rewrite Tab */
+        .rewrite-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .content-panel {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .panel-header {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #111827;
+        }
+
+        .content-display {
+            background: #f9fafb;
+            padding: 1.5rem;
+            border-radius: 8px;
+            min-height: 300px;
+            line-height: 1.8;
+            font-size: 0.9375rem;
+        }
+
+        .variations-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .variation-item {
+            padding: 1rem;
+            background: #f9fafb;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .variation-item:hover {
+            background: #f3f4f6;
+        }
+
+        .variation-item.selected {
+            border-color: #667eea;
+            background: #eef2ff;
+        }
+
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 3rem;
+        }
+
+        .spinner {
+            border: 3px solid #f3f4f6;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-label {
+            color: #6b7280;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .rewrite-container {
+                grid-template-columns: 1fr;
+            }
+
+            .target-page-item {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="link-building-container">
+        <div class="page-header">
+            <h1>🔗 Link Building</h1>
+            <p>Analyze content, generate natural link insertions, and track impact</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" data-tab="analyze">Analyze Opportunities</button>
+            <button class="tab" data-tab="rewrite">Generate Rewrites</button>
+            <button class="tab" data-tab="deploy">Deploy & Track</button>
+            <button class="tab" data-tab="analytics">Analytics</button>
+        </div>
+
+        <!-- Analyze Tab -->
+        <div class="tab-content active" id="analyze-tab">
+            <div class="analyze-form">
+                <h2>Find Link Opportunities</h2>
+                <form id="analyze-form">
+                    <div class="form-group">
+                        <label>Content to Analyze</label>
+                        <textarea id="content-input" placeholder="Paste your content here..." required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Target Pages (URLs to link to)</label>
+                        <div class="target-pages" id="target-pages">
+                            <div class="target-page-item">
+                                <input type="text" placeholder="Page Title" class="page-title" required>
+                                <input type="url" placeholder="https://example.com/page" class="page-url" required>
+                                <input type="text" placeholder="Topic (optional)" class="page-topic">
+                                <button type="button" class="btn btn-danger btn-small" onclick="removeTargetPage(this)">Remove</button>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-secondary btn-small" onclick="addTargetPage()" style="margin-top: 1rem;">+ Add Page</button>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Analyze Content</button>
+                </form>
+            </div>
+
+            <div id="opportunities-container"></div>
+        </div>
+
+        <!-- Rewrite Tab -->
+        <div class="tab-content" id="rewrite-tab">
+            <div class="analyze-form">
+                <h2>Generate Link Insertion</h2>
+                <form id="rewrite-form">
+                    <div class="form-group">
+                        <label>Original Content</label>
+                        <textarea id="rewrite-content" placeholder="Paste content where you want to insert a link..." required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Target URL</label>
+                        <input type="url" id="target-url" placeholder="https://example.com/page" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Anchor Text</label>
+                        <input type="text" id="anchor-text" placeholder="e.g., SEO best practices" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Context (optional)</label>
+                        <input type="text" id="link-context" placeholder="e.g., Educational resource about SEO">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Generate Rewrites</button>
+                </form>
+            </div>
+
+            <div id="rewrite-results"></div>
+        </div>
+
+        <!-- Deploy Tab -->
+        <div class="tab-content" id="deploy-tab">
+            <div class="analyze-form">
+                <h2>Deploy Links</h2>
+                <p>Select approved link insertions to deploy to your website.</p>
+                <div id="deploy-queue"></div>
+            </div>
+        </div>
+
+        <!-- Analytics Tab -->
+        <div class="tab-content" id="analytics-tab">
+            <div class="stats-grid" id="analytics-stats"></div>
+            <div id="analytics-charts"></div>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.tab + '-tab').classList.add('active');
+
+                if (tab.dataset.tab === 'analytics') {
+                    loadAnalytics();
+                }
+            });
+        });
+
+        // Target page management
+        function addTargetPage() {
+            const container = document.getElementById('target-pages');
+            const item = document.createElement('div');
+            item.className = 'target-page-item';
+            item.innerHTML = `
+                <input type="text" placeholder="Page Title" class="page-title" required>
+                <input type="url" placeholder="https://example.com/page" class="page-url" required>
+                <input type="text" placeholder="Topic (optional)" class="page-topic">
+                <button type="button" class="btn btn-danger btn-small" onclick="removeTargetPage(this)">Remove</button>
+            `;
+            container.appendChild(item);
+        }
+
+        function removeTargetPage(btn) {
+            btn.closest('.target-page-item').remove();
+        }
+
+        // Analyze form submission
+        document.getElementById('analyze-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const content = document.getElementById('content-input').value;
+            const targetPages = Array.from(document.querySelectorAll('.target-page-item')).map(item => ({
+                title: item.querySelector('.page-title').value,
+                url: item.querySelector('.page-url').value,
+                topic: item.querySelector('.page-topic').value
+            }));
+
+            const container = document.getElementById('opportunities-container');
+            container.innerHTML = '<div class="loading"><div class="spinner"></div><p>Analyzing content for link opportunities...</p></div>';
+
+            try {
+                const response = await fetch('/api/linkbuilding/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ content, targetPages })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    displayOpportunities(result.data);
+                } else {
+                    container.innerHTML = `<div class="error">Error: ${result.error}</div>`;
+                }
+            } catch (error) {
+                container.innerHTML = `<div class="error">Failed to analyze content: ${error.message}</div>`;
+            }
+        });
+
+        function displayOpportunities(data) {
+            const container = document.getElementById('opportunities-container');
+            
+            let html = `
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">${data.summary.totalOpportunities}</div>
+                        <div class="stat-label">Total Opportunities</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${data.summary.highPriority}</div>
+                        <div class="stat-label">High Priority</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${data.summary.averageRelevance}</div>
+                        <div class="stat-label">Avg Relevance Score</div>
+                    </div>
+                </div>
+                <div class="opportunities-grid">
+            `;
+
+            data.opportunities.forEach(opp => {
+                const relevanceClass = opp.relevanceScore >= 80 ? 'high' : opp.relevanceScore >= 60 ? 'medium' : 'low';
+                
+                html += `
+                    <div class="opportunity-card">
+                        <div class="opportunity-header">
+                            <div>
+                                <div class="opportunity-title">${opp.targetPage}</div>
+                                <div class="detail-value" style="color: #6b7280; font-size: 0.875rem;">${opp.targetUrl}</div>
+                            </div>
+                            <span class="relevance-badge relevance-${relevanceClass}">${opp.relevanceScore}/100</span>
+                        </div>
+                        
+                        <div class="opportunity-details">
+                            <div class="detail-row">
+                                <span class="detail-label">Anchor Text:</span>
+                                <span class="detail-value">${opp.anchorText}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Position:</span>
+                                <span class="detail-value">${opp.positionPercentage}% through content</span>
+                            </div>
+                        </div>
+
+                        <div class="context-box">
+                            <strong>Context:</strong><br>
+                            ${opp.context}
+                        </div>
+
+                        <div style="background: #eef2ff; padding: 1rem; border-radius: 8px; font-size: 0.875rem; color: #4338ca;">
+                            <strong>Why this works:</strong> ${opp.reasoning}
+                        </div>
+
+                        <div class="opportunity-actions">
+                            <button class="btn btn-primary btn-small" onclick="generateRewrite('${opp.targetUrl}', '${opp.anchorText}', '${opp.context}')">
+                                Generate Rewrite
+                            </button>
+                            <button class="btn btn-secondary btn-small">Skip</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        // Rewrite form
+        document.getElementById('rewrite-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const content = document.getElementById('rewrite-content').value;
+            const targetUrl = document.getElementById('target-url').value;
+            const anchorText = document.getElementById('anchor-text').value;
+            const context = document.getElementById('link-context').value;
+
+            const container = document.getElementById('rewrite-results');
+            container.innerHTML = '<div class="loading"><div class="spinner"></div><p>Generating natural link insertions...</p></div>';
+
+            try {
+                const response = await fetch('/api/linkbuilding/generate-rewrites', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ content, targetUrl, anchorText, context })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    displayRewrites(result.data);
+                } else {
+                    container.innerHTML = `<div class="error">Error: ${result.error}</div>`;
+                }
+            } catch (error) {
+                container.innerHTML = `<div class="error">Failed to generate rewrites: ${error.message}</div>`;
+            }
+        });
+
+        function displayRewrites(data) {
+            const container = document.getElementById('rewrite-results');
+            
+            let html = `
+                <div class="rewrite-container">
+                    <div class="content-panel">
+                        <div class="panel-header">Original Content</div>
+                        <div class="content-display">${data.original.content}</div>
+                        <div style="margin-top: 1rem; color: #6b7280; font-size: 0.875rem;">
+                            Word count: ${data.original.wordCount}
+                        </div>
+                    </div>
+
+                    <div class="content-panel">
+                        <div class="panel-header">Rewritten with Link (Quality: ${data.rewritten.qualityScore}/100)</div>
+                        <div class="content-display" id="selected-variation">${formatMarkdown(data.rewritten.content)}</div>
+                        <div style="margin-top: 1rem; color: #6b7280; font-size: 0.875rem;">
+                            Word count: ${data.rewritten.wordCount} (${data.rewritten.wordCountDiff > 0 ? '+' : ''}${data.rewritten.wordCountDiff})
+                        </div>
+                        
+                        <div style="margin-top: 1rem;">
+                            <strong>Variations:</strong>
+                            <div class="variations-list">
+                                ${data.variations.map((v, i) => `
+                                    <div class="variation-item ${v.isDefault ? 'selected' : ''}" onclick="selectVariation(${i})">
+                                        <strong>Variation ${v.id}</strong> - Link at ${v.positionPercentage}%
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        <div class="opportunity-actions" style="margin-top: 1.5rem;">
+                            <button class="btn btn-success" onclick="approveRewrite()">Approve & Queue</button>
+                            <button class="btn btn-secondary" onclick="copyToClipboard()">Copy Content</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            container.innerHTML = html;
+            window.currentRewrites = data;
+        }
+
+        function formatMarkdown(text) {
+            return text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" style="color: #667eea; text-decoration: underline;">$1</a>');
+        }
+
+        function selectVariation(index) {
+            const variation = window.currentRewrites.variations[index];
+            document.getElementById('selected-variation').innerHTML = formatMarkdown(variation.content);
+            
+            document.querySelectorAll('.variation-item').forEach((item, i) => {
+                item.classList.toggle('selected', i === index);
+            });
+        }
+
+        function copyToClipboard() {
+            const content = document.getElementById('selected-variation').innerText;
+            navigator.clipboard.writeText(content);
+            alert('Content copied to clipboard!');
+        }
+
+        function approveRewrite() {
+            alert('Rewrite approved and added to deployment queue!');
+        }
+
+        // Analytics
+        async function loadAnalytics() {
+            const container = document.getElementById('analytics-stats');
+            container.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading analytics...</p></div>';
+
+            try {
+                const response = await fetch('/api/linkbuilding/analytics?timeRange=30d');
+                const result = await response.json();
+
+                if (result.success) {
+                    displayAnalytics(result.data);
+                }
+            } catch (error) {
+                container.innerHTML = `<div class="error">Failed to load analytics: ${error.message}</div>`;
+            }
+        }
+
+        function displayAnalytics(data) {
+            const container = document.getElementById('analytics-stats');
+            
+            container.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-value">${data.summary.totalDeployments}</div>
+                    <div class="stat-label">Total Deployments</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${data.summary.totalLinksAdded}</div>
+                    <div class="stat-label">Links Added</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${data.summary.avgLinksPerDeployment}</div>
+                    <div class="stat-label">Avg Links/Deployment</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${data.summary.avgContentChange}</div>
+                    <div class="stat-label">Avg Content Change (chars)</div>
+                </div>
+            `;
+        }
+
+        function generateRewrite(url, anchor, context) {
+            document.querySelector('[data-tab="rewrite"]').click();
+            document.getElementById('target-url').value = url;
+            document.getElementById('anchor-text').value = anchor;
+            document.getElementById('link-context').value = context;
+        }
+    </script>
+</body>
+</html>
