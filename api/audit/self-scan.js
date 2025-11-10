@@ -2,9 +2,12 @@
  * Mode 2: Self-Audit Endpoint
  * Analyzes your own content and provides actionable fixes
  * Powered by ChatGPT-5 Brain
+ * Now with smart internal/external URL detection
  */
 
 import { seoAnalysisBrain, getUsageStats } from '../utils/ai-brain.js';
+import { verifyAuth, getUserDomains } from '../utils/db.js';
+import { getDomainType } from '../utils/domain-detector.js';
 
 export default async function handler(req, res) {
   // Enable CORS
@@ -34,6 +37,21 @@ export default async function handler(req, res) {
         error: 'URL and content are required',
         message: 'Please provide both URL and content to analyze' 
       });
+    }
+
+    // Get user domains for detection (optional - works without auth)
+    let userDomains = [];
+    let domainInfo = null;
+    
+    if (req.headers.authorization) {
+      const { user } = await verifyAuth(req.headers.authorization);
+      if (user) {
+        const { data: domains } = await getUserDomains(user.id);
+        userDomains = domains || [];
+        domainInfo = getDomainType(url, userDomains);
+        
+        console.log(`[MODE 2 - SELF-AUDIT] Domain detection: ${domainInfo.label} (${domainInfo.domain})`);
+      }
     }
 
     console.log(`[MODE 2 - SELF-AUDIT] Analyzing: ${url}`);
@@ -92,6 +110,17 @@ export default async function handler(req, res) {
       success: true,
       data: {
         url,
+        
+        // Domain detection info
+        domainInfo: domainInfo || {
+          isInternal: false,
+          domain: null,
+          label: 'Unknown',
+          badge: 'secondary',
+          description: 'Add your domains in settings for smart detection',
+          mode: 'mode2',
+          modeName: 'Self-Audit & Fixes'
+        },
         
         // Current state
         current: {
