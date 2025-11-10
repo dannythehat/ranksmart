@@ -20,7 +20,10 @@
     "igaming",
     "eeat",
     "content-generation",
-    "seo-audit"
+    "seo-audit",
+    "google-search-console",
+    "analytics",
+    "serp-tracking"
   ],
   "author": "RankSmart Team",
   "license": "MIT",
@@ -30,7 +33,8 @@
     "@mendable/firecrawl-js": "^1.0.0",
     "openai": "^4.67.3",
     "axios": "^1.6.2",
-    "stripe": "^14.0.0"
+    "stripe": "^14.0.0",
+    "googleapis": "^131.0.0"
   },
   "devDependencies": {
     "vercel": "^33.0.0"
