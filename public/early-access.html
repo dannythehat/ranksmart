@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Get early access to RankSmart - AI-Powered SEO Content Optimizer">
+    <title>Early Access - RankSmart</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components.css">
+    <style>
+        .early-access-hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 2rem;
+        }
+        
+        .early-access-card {
+            background: white;
+            border-radius: 20px;
+            padding: 3rem;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .early-access-card h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .early-access-card p {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+        
+        .benefits {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .benefits h3 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+        
+        .benefits ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .benefits li {
+            padding: 0.5rem 0;
+            color: #555;
+            display: flex;
+            align-items: center;
+        }
+        
+        .benefits li:before {
+            content: "✓";
+            color: #667eea;
+            font-weight: bold;
+            margin-right: 0.75rem;
+            font-size: 1.2rem;
+        }
+        
+        .signup-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+        
+        .form-group input,
+        .form-group textarea {
+            padding: 0.75rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .submit-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .success-message {
+            display: none;
+            background: #d4edda;
+            color: #155724;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            text-align: center;
+        }
+        
+        .success-message.show {
+            display: block;
+        }
+        
+        .spots-remaining {
+            background: #fff3cd;
+            color: #856404;
+            padding: 0.75rem;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="early-access-hero">
+        <div class="early-access-card">
+            <h1>🚀 Get Early Access</h1>
+            <p>Join the first 50 users and get <strong>lifetime Pro access for free</strong>. Help shape the future of AI-powered SEO.</p>
+            
+            <div class="spots-remaining">
+                ⚡ Only <span id="spotsLeft">50</span> spots remaining!
+            </div>
+            
+            <div class="benefits">
+                <h3>What You'll Get:</h3>
+                <ul>
+                    <li>Lifetime Pro Plan ($149/mo value) - FREE</li>
+                    <li>Priority feature requests</li>
+                    <li>Direct access to the founder</li>
+                    <li>Early access to all new features</li>
+                    <li>Your feedback shapes the product</li>
+                </ul>
+            </div>
+            
+            <form class="signup-form" id="earlyAccessForm">
+                <div class="form-group">
+                    <label for="name">Your Name *</label>
+                    <input type="text" id="name" name="name" required placeholder="John Doe">
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email Address *</label>
+                    <input type="email" id="email" name="email" required placeholder="john@example.com">
+                </div>
+                
+                <div class="form-group">
+                    <label for="website">Your Website (Optional)</label>
+                    <input type="url" id="website" name="website" placeholder="https://yoursite.com">
+                </div>
+                
+                <div class="form-group">
+                    <label for="useCase">What's your biggest SEO challenge? *</label>
+                    <textarea id="useCase" name="useCase" required placeholder="e.g., Keeping casino bonuses updated, outranking competitors, improving content quality..."></textarea>
+                </div>
+                
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    🎯 Claim Your Spot
+                </button>
+                
+                <div class="success-message" id="successMessage">
+                    🎉 Success! Check your email for next steps. Welcome to RankSmart!
+                </div>
+            </form>
+            
+            <p style="margin-top: 2rem; text-align: center; color: #999; font-size: 0.9rem;">
+                <a href="index.html" style="color: #667eea;">← Back to homepage</a>
+            </p>
+        </div>
+    </div>
+    
+    <script>
+        // Simple form handling (you'll connect this to your backend later)
+        document.getElementById('earlyAccessForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const successMessage = document.getElementById('successMessage');
+            
+            // Disable button
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ Submitting...';
+            
+            // Get form data
+            const formData = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                website: document.getElementById('website').value,
+                useCase: document.getElementById('useCase').value,
+                timestamp: new Date().toISOString()
+            };
+            
+            try {
+                // TODO: Connect to your backend API
+                // For now, we'll use localStorage and show success
+                
+                // Store locally (temporary solution)
+                const signups = JSON.parse(localStorage.getItem('earlyAccessSignups') || '[]');
+                signups.push(formData);
+                localStorage.setItem('earlyAccessSignups', JSON.stringify(signups));
+                
+                // Update spots remaining
+                const spotsLeft = Math.max(0, 50 - signups.length);
+                document.getElementById('spotsLeft').textContent = spotsLeft;
+                
+                // Show success message
+                successMessage.classList.add('show');
+                
+                // Reset form
+                e.target.reset();
+                
+                // Re-enable button after 3 seconds
+                setTimeout(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '🎯 Claim Your Spot';
+                }, 3000);
+                
+                // Log to console (you can see signups in browser console)
+                console.log('New signup:', formData);
+                console.log('All signups:', signups);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Something went wrong. Please try again or email us directly.');
+                submitBtn.disabled = false;
+                submitBtn.textContent = '🎯 Claim Your Spot';
+            }
+        });
+        
+        // Initialize spots remaining
+        window.addEventListener('load', () => {
+            const signups = JSON.parse(localStorage.getItem('earlyAccessSignups') || '[]');
+            const spotsLeft = Math.max(0, 50 - signups.length);
+            document.getElementById('spotsLeft').textContent = spotsLeft;
+        });
+    </script>
+</body>
+</html>
