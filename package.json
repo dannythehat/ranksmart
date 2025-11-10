@@ -29,7 +29,8 @@
     "@google/generative-ai": "^0.21.0",
     "@mendable/firecrawl-js": "^1.0.0",
     "openai": "^4.67.3",
-    "axios": "^1.6.2"
+    "axios": "^1.6.2",
+    "stripe": "^14.0.0"
   },
   "devDependencies": {
     "vercel": "^33.0.0"
