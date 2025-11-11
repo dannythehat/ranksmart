@@ -1,11 +1,21 @@
 /**
  * Complete SEO Audit Endpoint
- * Integrates Firecrawl scraping, E-E-A-T scoring, and technical SEO checks
+ * Integrates Firecrawl scraping, E-E-A-T scoring, technical SEO checks, and database storage
  */
 
 const { scrapeUrl } = require('./firecrawl');
 const { calculateEEATScore } = require('./eeat-scorer');
 const { runTechnicalSEOAudit } = require('./technical-seo');
+
+// Import database utilities (will be converted to CommonJS)
+let saveAudit, verifyAuth;
+try {
+  const db = require('../utils/db');
+  saveAudit = db.saveAudit;
+  verifyAuth = db.verifyAuth;
+} catch (error) {
+  console.warn('Database utilities not available:', error.message);
+}
 
 module.exports = async function handler(req, res) {
   // Enable CORS
@@ -25,9 +35,21 @@ module.exports = async function handler(req, res) {
   }
 
   const startTime = Date.now();
+  let userId = null;
+  let shouldSaveToDb = false;
 
   try {
-    const { url } = req.body;
+    const { url, save_to_history = true } = req.body;
+
+    // Check if user is authenticated (optional for audit, required for saving)
+    const authHeader = req.headers.authorization;
+    if (authHeader && verifyAuth) {
+      const authResult = await verifyAuth(authHeader);
+      if (!authResult.error && authResult.user) {
+        userId = authResult.user.id;
+        shouldSaveToDb = save_to_history && saveAudit;
+      }
+    }
 
     // Validate request body
     if (!req.body || typeof req.body !== 'object') {
@@ -80,7 +102,7 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    console.log(`[AUDIT START] ${url}`);
+    console.log(`[AUDIT START] ${url}${userId ? ` (User: ${userId})` : ' (Anonymous)'}`);
 
     // Step 1: Scrape the page with Firecrawl
     console.log('[STEP 1/4] Scraping page...');
@@ -203,11 +225,52 @@ module.exports = async function handler(req, res) {
       },
     };
 
+    // Step 6: Save to database if user is authenticated
+    let auditId = null;
+    if (shouldSaveToDb && userId) {
+      console.log('[STEP 5/5] Saving to database...');
+      try {
+        const dbResult = await saveAudit(userId, {
+          url: url,
+          title: scrapedData.title || 'Untitled',
+          overall_score: overallScore,
+          analysis: {
+            eeat: eeatScore,
+            technical: technicalSEO,
+            overall: auditReport.overall,
+          },
+          page_data: {
+            title: scrapedData.title,
+            description: scrapedData.description,
+            wordCount: scrapedData.wordCount,
+            readingTime: scrapedData.readingTime,
+            headings: scrapedData.headings,
+            images: scrapedData.images,
+            links: scrapedData.links,
+          },
+          serp_data: null, // Will be populated if SERP analysis is run
+        });
+
+        if (dbResult.error) {
+          console.error('[DB SAVE FAILED]', dbResult.error);
+          // Don't fail the request, just log the error
+        } else {
+          auditId = dbResult.data?.id;
+          console.log(`[DB SAVE SUCCESS] Audit ID: ${auditId}`);
+        }
+      } catch (error) {
+        console.error('[DB SAVE ERROR]', error);
+        // Don't fail the request, just log the error
+      }
+    }
+
     console.log(`[AUDIT COMPLETE] Overall score: ${overallScore}/100 (${executionTime}ms)`);
 
     return res.status(200).json({
       success: true,
       data: auditReport,
+      saved: !!auditId,
+      audit_id: auditId,
     });
 
   } catch (error) {
