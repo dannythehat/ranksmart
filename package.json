@@ -1,6 +1,6 @@
 {
   "name": "ranksmart",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "AI-Powered SEO Content Optimizer - Powered by ChatGPT-5 Brain 🧠",
   "type": "commonjs",
   "main": "api/index.js",
@@ -13,7 +13,10 @@
     "test:gateway2": "node tests/02-eeat-scorer-test.js",
     "test:gateway3": "node tests/03-technical-seo-test.js",
     "test:gateway4": "node tests/04-integration-test.js",
-    "test:brain": "node tests/ai-brain-test.js"
+    "test:brain": "node tests/ai-brain-test.js",
+    "test:watch": "nodemon --exec npm test",
+    "lint": "echo 'Linting not configured yet'",
+    "format": "echo 'Formatting not configured yet'"
   },
   "keywords": [
     "seo",
@@ -32,16 +35,17 @@
   "author": "RankSmart Team",
   "license": "MIT",
   "dependencies": {
-    "@supabase/supabase-js": "^2.39.0",
+    "@supabase/supabase-js": "^2.45.4",
     "@google/generative-ai": "^0.21.0",
-    "@mendable/firecrawl-js": "^1.0.0",
-    "openai": "^4.67.3",
-    "axios": "^1.6.2",
-    "stripe": "^14.0.0",
-    "googleapis": "^131.0.0"
+    "@mendable/firecrawl-js": "^1.7.2",
+    "openai": "^4.73.0",
+    "axios": "^1.7.9",
+    "stripe": "^17.3.1",
+    "googleapis": "^144.0.0"
   },
   "devDependencies": {
-    "vercel": "^33.0.0"
+    "vercel": "^37.14.0",
+    "nodemon": "^3.1.7"
   },
   "engines": {
     "node": ">=18.0.0"
