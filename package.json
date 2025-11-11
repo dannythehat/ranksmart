@@ -12,6 +12,7 @@
     "test:gateway1": "node tests/01-firecrawl-test.js",
     "test:gateway2": "node tests/02-eeat-scorer-test.js",
     "test:gateway3": "node tests/03-technical-seo-test.js",
+    "test:gateway4": "node tests/04-integration-test.js",
     "test:brain": "node tests/ai-brain-test.js"
   },
   "keywords": [
