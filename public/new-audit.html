@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SEO Audit - RankSmart 2.0</title>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/components.css">
+  <style>
+    body {
+      background: #09090b;
+      color: #fafafa;
+      min-height: 100vh;
+    }
+
+    .audit-page {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    /* Header */
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 3rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid #27272a;
+    }
+
+    .page-title {
+      font-size: 2rem;
+      background: linear-gradient(135deg, #9333ea 0%, #c026d3 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .back-link {
+      color: #a1a1aa;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .back-link:hover {
+      color: #9333ea;
+    }
+
+    /* URL Input Form */
+    .url-input-section {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 16px;
+      padding: 3rem;
+      margin-bottom: 3rem;
+      text-align: center;
+    }
+
+    .url-input-section h2 {
+      font-size: 1.75rem;
+      margin-bottom: 1rem;
+      color: #fafafa;
+    }
+
+    .url-input-section p {
+      color: #a1a1aa;
+      margin-bottom: 2rem;
+    }
+
+    .url-form {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .url-input-group {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .url-input {
+      flex: 1;
+      padding: 1rem 1.5rem;
+      background: #09090b;
+      border: 2px solid #27272a;
+      border-radius: 12px;
+      color: #fafafa;
+      font-size: 1rem;
+      transition: all 0.2s;
+    }
+
+    .url-input:focus {
+      outline: none;
+      border-color: #9333ea;
+      box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.1);
+    }
+
+    .scan-btn {
+      padding: 1rem 2.5rem;
+      background: linear-gradient(135deg, #9333ea 0%, #c026d3 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      white-space: nowrap;
+    }
+
+    .scan-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(147, 51, 234, 0.4);
+    }
+
+    .scan-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .example-urls {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 1.5rem;
+    }
+
+    .example-url {
+      padding: 0.5rem 1rem;
+      background: #27272a;
+      border: 1px solid #3f3f46;
+      border-radius: 8px;
+      color: #a1a1aa;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .example-url:hover {
+      border-color: #9333ea;
+      color: #9333ea;
+    }
+
+    /* Loading State */
+    .loading-section {
+      display: none;
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 16px;
+      padding: 4rem 2rem;
+      text-align: center;
+    }
+
+    .loading-section.active {
+      display: block;
+    }
+
+    .spinner {
+      width: 60px;
+      height: 60px;
+      border: 4px solid #27272a;
+      border-top: 4px solid #9333ea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 1.5rem;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      font-size: 1.5rem;
+      color: #fafafa;
+      margin-bottom: 0.5rem;
+    }
+
+    .loading-subtext {
+      color: #a1a1aa;
+    }
+
+    /* Results Section */
+    .results-section {
+      display: none;
+    }
+
+    .results-section.active {
+      display: block;
+    }
+
+    /* Score Hero */
+    .score-hero {
+      background: linear-gradient(135deg, #1a0033 0%, #330066 100%);
+      border: 1px solid #3f3f46;
+      border-radius: 16px;
+      padding: 3rem;
+      text-align: center;
+      margin-bottom: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .score-hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at 50% 50%, rgba(147, 51, 234, 0.1) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    .score-display {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3rem;
+      margin: 2rem 0;
+      position: relative;
+    }
+
+    .score-circle-container {
+      position: relative;
+      width: 180px;
+      height: 180px;
+    }
+
+    .score-circle-bg {
+      fill: none;
+      stroke: rgba(255, 255, 255, 0.1);
+      stroke-width: 12;
+    }
+
+    .score-circle-progress {
+      fill: none;
+      stroke: #9333ea;
+      stroke-width: 12;
+      stroke-linecap: round;
+      transform: rotate(-90deg);
+      transform-origin: center;
+      transition: stroke-dashoffset 1.5s ease-in-out;
+    }
+
+    .score-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+    }
+
+    .score-number {
+      font-size: 3.5rem;
+      font-weight: 700;
+      line-height: 1;
+      color: white;
+    }
+
+    .score-grade {
+      font-size: 1.5rem;
+      opacity: 0.9;
+      margin-top: 0.25rem;
+      color: white;
+    }
+
+    .score-details {
+      text-align: left;
+    }
+
+    .score-details h1 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      color: white;
+    }
+
+    .score-url {
+      opacity: 0.8;
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+      word-break: break-all;
+      color: #d4d4d8;
+    }
+
+    .score-status {
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      background: rgba(147, 51, 234, 0.2);
+      border: 1px solid #9333ea;
+      border-radius: 20px;
+      font-weight: 600;
+      margin-top: 0.5rem;
+      color: #a855f7;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 12px;
+      padding: 1.5rem;
+      border-left: 4px solid #9333ea;
+    }
+
+    .stat-label {
+      font-size: 0.875rem;
+      color: #a1a1aa;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #fafafa;
+    }
+
+    /* Breakdown Section */
+    .breakdown-section {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .breakdown-section h2 {
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+      color: #fafafa;
+    }
+
+    .score-bar-item {
+      margin-bottom: 1.5rem;
+    }
+
+    .score-bar-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+
+    .score-bar-label {
+      color: #d4d4d8;
+    }
+
+    .score-bar-value {
+      color: #9333ea;
+    }
+
+    .score-bar-track {
+      height: 12px;
+      background: #27272a;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .score-bar-fill {
+      height: 100%;
+      border-radius: 6px;
+      transition: width 1s ease-in-out;
+    }
+
+    .score-excellent { background: #10b981; }
+    .score-good { background: #3b82f6; }
+    .score-fair { background: #f59e0b; }
+    .score-poor { background: #ef4444; }
+
+    /* Issues Section */
+    .priority-group {
+      margin-bottom: 2rem;
+    }
+
+    .priority-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid #27272a;
+    }
+
+    .priority-icon {
+      font-size: 1.5rem;
+    }
+
+    .priority-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #fafafa;
+    }
+
+    .priority-count {
+      background: #27272a;
+      color: #a1a1aa;
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+
+    .issue-card {
+      background: #27272a;
+      border-left: 4px solid #9333ea;
+      border-radius: 8px;
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+    }
+
+    .issue-card.critical {
+      border-left-color: #ef4444;
+      background: rgba(239, 68, 68, 0.1);
+    }
+
+    .issue-card.important {
+      border-left-color: #f59e0b;
+      background: rgba(245, 158, 11, 0.1);
+    }
+
+    .issue-title {
+      font-weight: 600;
+      color: #fafafa;
+      margin-bottom: 0.5rem;
+    }
+
+    .issue-description {
+      color: #a1a1aa;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin-bottom: 0.75rem;
+    }
+
+    .issue-recommendation {
+      background: #18181b;
+      padding: 0.75rem;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      color: #d4d4d8;
+    }
+
+    .issue-recommendation strong {
+      color: #9333ea;
+    }
+
+    /* Action Buttons */
+    .action-section {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 12px;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 1.5rem;
+    }
+
+    .action-btn {
+      padding: 0.875rem 1.75rem;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      border: none;
+      font-size: 1rem;
+    }
+
+    .action-btn-primary {
+      background: linear-gradient(135deg, #9333ea 0%, #c026d3 100%);
+      color: white;
+    }
+
+    .action-btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(147, 51, 234, 0.4);
+    }
+
+    .action-btn-secondary {
+      background: #18181b;
+      color: #9333ea;
+      border: 2px solid #9333ea;
+    }
+
+    .action-btn-secondary:hover {
+      background: #9333ea;
+      color: white;
+    }
+
+    /* Error State */
+    .error-section {
+      display: none;
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 16px;
+      padding: 4rem 2rem;
+      text-align: center;
+    }
+
+    .error-section.active {
+      display: block;
+    }
+
+    .error-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+    }
+
+    .error-title {
+      font-size: 1.5rem;
+      color: #ef4444;
+      margin-bottom: 1rem;
+    }
+
+    .error-message {
+      color: #a1a1aa;
+      margin-bottom: 2rem;
+    }
+
+    @media (max-width: 768px) {
+      .score-display {
+        flex-direction: column;
+      }
+
+      .score-details {
+        text-align: center;
+      }
+
+      .url-input-group {
+        flex-direction: column;
+      }
+
+      .action-buttons {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="audit-page">
+    <!-- Header -->
+    <header class="page-header">
+      <h1 class="page-title">🚀 SEO Audit Tool</h1>
+      <a href="dashboard.html" class="back-link">← Back to Dashboard</a>
+    </header>
+
+    <!-- URL Input Section -->
+    <section class="url-input-section" id="urlInputSection">
+      <h2>Analyze Any Website</h2>
+      <p>Enter a URL to get a comprehensive SEO audit with E-E-A-T scoring and technical analysis</p>
+      
+      <form class="url-form" id="auditForm">
+        <div class="url-input-group">
+          <input 
+            type="url" 
+            class="url-input" 
+            id="urlInput" 
+            placeholder="https://example.com/page" 
+            required
+          />
+          <button type="submit" class="scan-btn" id="scanBtn">
+            🔍 Scan Now
+          </button>
+        </div>
+      </form>
+
+      <div class="example-urls">
+        <span style="color: #a1a1aa; font-size: 0.875rem;">Try examples:</span>
+        <button class="example-url" onclick="fillExample('https://www.nytimes.com')">News Site</button>
+        <button class="example-url" onclick="fillExample('https://www.amazon.com')">E-commerce</button>
+        <button class="example-url" onclick="fillExample('https://www.wikipedia.org')">Wikipedia</button>
+      </div>
+    </section>
+
+    <!-- Loading Section -->
+    <section class="loading-section" id="loadingSection">
+      <div class="spinner"></div>
+      <h2 class="loading-text">Analyzing Your Content...</h2>
+      <p class="loading-subtext">This may take 10-30 seconds</p>
+    </section>
+
+    <!-- Error Section -->
+    <section class="error-section" id="errorSection">
+      <div class="error-icon">❌</div>
+      <h2 class="error-title">Analysis Failed</h2>
+      <p class="error-message" id="errorMessage"></p>
+      <button onclick="resetAudit()" class="action-btn action-btn-primary">
+        Try Again
+      </button>
+    </section>
+
+    <!-- Results Section -->
+    <section class="results-section" id="resultsSection">
+      <!-- Score Hero -->
+      <div class="score-hero">
+        <div class="score-display">
+          <div class="score-circle-container">
+            <svg width="180" height="180">
+              <circle class="score-circle-bg" cx="90" cy="90" r="80"/>
+              <circle id="scoreCircle" class="score-circle-progress" cx="90" cy="90" r="80" 
+                      stroke-dasharray="502.65" stroke-dashoffset="502.65"/>
+            </svg>
+            <div class="score-text">
+              <div class="score-number" id="overallScore">0</div>
+              <div class="score-grade" id="overallGrade">F</div>
+            </div>
+          </div>
+          <div class="score-details">
+            <h1 id="pageTitle">Page Title</h1>
+            <div class="score-url" id="pageUrl"></div>
+            <div class="score-status" id="scoreStatus">Analyzing...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Stats -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Total Issues</div>
+          <div class="stat-value" id="totalIssues">0</div>
+        </div>
+        <div class="stat-card" style="border-left-color: #ef4444;">
+          <div class="stat-label">Critical Issues</div>
+          <div class="stat-value" id="criticalIssues" style="color: #ef4444;">0</div>
+        </div>
+        <div class="stat-card" style="border-left-color: #10b981;">
+          <div class="stat-label">Word Count</div>
+          <div class="stat-value" id="wordCount">0</div>
+        </div>
+        <div class="stat-card" style="border-left-color: #f59e0b;">
+          <div class="stat-label">Reading Time</div>
+          <div class="stat-value" id="readingTime">0 min</div>
+        </div>
+      </div>
+
+      <!-- E-E-A-T Breakdown -->
+      <div class="breakdown-section">
+        <h2>📊 E-E-A-T Score Breakdown</h2>
+        <div id="eeatBreakdown"></div>
+      </div>
+
+      <!-- Technical SEO Breakdown -->
+      <div class="breakdown-section">
+        <h2>🔧 Technical SEO Analysis</h2>
+        <div id="technicalBreakdown"></div>
+      </div>
+
+      <!-- Issues -->
+      <div class="breakdown-section">
+        <h2>🎯 Issues & Recommendations</h2>
+        <div id="issuesList"></div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-section">
+        <h2>🚀 Next Steps</h2>
+        <p style="color: #a1a1aa; margin-top: 0.5rem;">Choose how you want to optimize this content</p>
+        <div class="action-buttons">
+          <button class="action-btn action-btn-primary" onclick="window.location.href='self-audit.html'">
+            🛠️ Fix My Article
+          </button>
+          <button class="action-btn action-btn-primary" onclick="window.location.href='competitor-mode.html'">
+            ✨ Generate New Content
+          </button>
+          <button class="action-btn action-btn-secondary" onclick="resetAudit()">
+            🔍 Scan Another URL
+          </button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // Form submission
+    document.getElementById('auditForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const url = document.getElementById('urlInput').value.trim();
+      if (url) {
+        await runAudit(url);
+      }
+    });
+
+    // Fill example URL
+    function fillExample(url) {
+      document.getElementById('urlInput').value = url;
+    }
+
+    // Run audit
+    async function runAudit(url) {
+      // Hide input, show loading
+      document.getElementById('urlInputSection').style.display = 'none';
+      document.getElementById('loadingSection').classList.add('active');
+      document.getElementById('errorSection').classList.remove('active');
+      document.getElementById('resultsSection').classList.remove('active');
+
+      try {
+        const response = await fetch('/api/audit/scan', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ url })
+        });
+
+        const result = await response.json();
+
+        if (!result.success) {
+          throw new Error(result.message || result.error || 'Audit failed');
+        }
+
+        // Hide loading, show results
+        document.getElementById('loadingSection').classList.remove('active');
+        document.getElementById('resultsSection').classList.add('active');
+        
+        displayResults(result.data);
+      } catch (error) {
+        console.error('Audit error:', error);
+        
+        // Hide loading, show error
+        document.getElementById('loadingSection').classList.remove('active');
+        document.getElementById('errorSection').classList.add('active');
+        document.getElementById('errorMessage').textContent = error.message || 'Failed to analyze the page. Please try again.';
+      }
+    }
+
+    // Display results
+    function displayResults(data) {
+      // Overall score
+      const score = data.overall.score;
+      document.getElementById('overallScore').textContent = score;
+      document.getElementById('overallGrade').textContent = data.overall.grade;
+      document.getElementById('scoreStatus').textContent = data.overall.message || data.overall.status;
+      animateScoreCircle(score);
+
+      // Page info
+      document.getElementById('pageTitle').textContent = data.page.title;
+      document.getElementById('pageUrl').textContent = data.url;
+
+      // Stats
+      document.getElementById('totalIssues').textContent = data.stats.totalIssues;
+      document.getElementById('criticalIssues').textContent = data.stats.criticalIssues;
+      document.getElementById('wordCount').textContent = data.page.wordCount.toLocaleString();
+      document.getElementById('readingTime').textContent = data.page.readingTime + ' min';
+
+      // E-E-A-T Breakdown
+      renderScoreBreakdown('eeatBreakdown', data.eeat.breakdown);
+
+      // Technical SEO Breakdown
+      renderScoreBreakdown('technicalBreakdown', data.technicalSEO.breakdown);
+
+      // Issues
+      renderIssues(data.technicalSEO.issuesByPriority);
+    }
+
+    // Animate score circle
+    function animateScoreCircle(score) {
+      const circle = document.getElementById('scoreCircle');
+      const circumference = 502.65;
+      const offset = circumference - (score / 100) * circumference;
+      
+      setTimeout(() => {
+        circle.style.strokeDashoffset = offset;
+      }, 100);
+    }
+
+    // Render score breakdown
+    function renderScoreBreakdown(containerId, breakdown) {
+      const container = document.getElementById(containerId);
+      let html = '';
+
+      for (const [key, value] of Object.entries(breakdown)) {
+        const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+        const scoreClass = getScoreClass(value);
+        
+        html += `
+          <div class="score-bar-item">
+            <div class="score-bar-header">
+              <span class="score-bar-label">${label}</span>
+              <span class="score-bar-value">${value}/100</span>
+            </div>
+            <div class="score-bar-track">
+              <div class="score-bar-fill ${scoreClass}" style="width: ${value}%"></div>
+            </div>
+          </div>
+        `;
+      }
+
+      container.innerHTML = html;
+    }
+
+    // Render issues
+    function renderIssues(issuesByPriority) {
+      const container = document.getElementById('issuesList');
+      let html = '';
+
+      const priorities = [
+        { key: 'P0', label: 'Critical Issues', icon: '🔴', class: 'critical' },
+        { key: 'P1', label: 'Important Issues', icon: '🟡', class: 'important' },
+        { key: 'P2', label: 'Minor Issues', icon: '🟢', class: 'minor' }
+      ];
+
+      priorities.forEach(priority => {
+        const issues = issuesByPriority[priority.key] || [];
+        if (issues.length > 0) {
+          html += `
+            <div class="priority-group">
+              <div class="priority-header">
+                <span class="priority-icon">${priority.icon}</span>
+                <span class="priority-title">${priority.label}</span>
+                <span class="priority-count">${issues.length}</span>
+              </div>
+          `;
+
+          issues.forEach(issue => {
+            html += `
+              <div class="issue-card ${priority.class}">
+                <div class="issue-title">${issue.issue}</div>
+                <div class="issue-description">${issue.description || ''}</div>
+                ${issue.recommendation ? `
+                  <div class="issue-recommendation">
+                    <strong>💡 Fix:</strong> ${issue.recommendation}
+                  </div>
+                ` : ''}
+              </div>
+            `;
+          });
+
+          html += '</div>';
+        }
+      });
+
+      if (html === '') {
+        html = '<p style="color: #10b981; text-align: center; padding: 2rem;">🎉 No issues found! Your page is well optimized.</p>';
+      }
+
+      container.innerHTML = html;
+    }
+
+    // Get score class
+    function getScoreClass(score) {
+      if (score >= 80) return 'score-excellent';
+      if (score >= 60) return 'score-good';
+      if (score >= 40) return 'score-fair';
+      return 'score-poor';
+    }
+
+    // Reset audit
+    function resetAudit() {
+      document.getElementById('urlInputSection').style.display = 'block';
+      document.getElementById('loadingSection').classList.remove('active');
+      document.getElementById('errorSection').classList.remove('active');
+      document.getElementById('resultsSection').classList.remove('active');
+      document.getElementById('urlInput').value = '';
+      document.getElementById('urlInput').focus();
+    }
+  </script>
+</body>
+</html>
