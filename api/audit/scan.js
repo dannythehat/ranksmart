@@ -7,7 +7,7 @@ const { scrapeUrl } = require('./firecrawl');
 const { calculateEEATScore } = require('./eeat-scorer');
 const { runTechnicalSEOAudit } = require('./technical-seo');
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   // Enable CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -222,7 +222,7 @@ export default async function handler(req, res) {
       executionTime: `${(executionTime / 1000).toFixed(2)}s`,
     });
   }
-}
+};
 
 /**
  * Get letter grade from score
@@ -255,11 +255,12 @@ function getStatus(score) {
  * Get status message from score
  */
 function getStatusMessage(score) {
-  if (score >= 90) return 'Outstanding! Your page is highly optimized.';
-  if (score >= 80) return 'Great job! Your page is well-optimized with minor improvements needed.';
-  if (score >= 70) return 'Good work! Your page is solid but has room for improvement.';
-  if (score >= 50) return 'Needs work. Several important issues need attention.';
-  return 'Critical issues detected. Immediate action required.';
+  if (score >= 90) return 'Outstanding! Your content is highly optimized.';
+  if (score >= 80) return 'Excellent! Your content is well-optimized with minor improvements possible.';
+  if (score >= 70) return 'Good! Your content is solid but has room for improvement.';
+  if (score >= 60) return 'Fair. Your content needs some optimization work.';
+  if (score >= 50) return 'Needs improvement. Several optimization opportunities identified.';
+  return 'Poor. Significant optimization work required.';
 }
 
 /**
@@ -267,10 +268,39 @@ function getStatusMessage(score) {
  */
 function identifyStrengths(breakdown) {
   const strengths = [];
-  if (breakdown.experience >= 70) strengths.push('experience');
-  if (breakdown.expertise >= 70) strengths.push('expertise');
-  if (breakdown.authoritativeness >= 70) strengths.push('authoritativeness');
-  if (breakdown.trustworthiness >= 70) strengths.push('trustworthiness');
+  
+  if (breakdown.experience >= 70) {
+    strengths.push({
+      category: 'Experience',
+      score: breakdown.experience,
+      message: 'Strong first-hand experience demonstrated',
+    });
+  }
+  
+  if (breakdown.expertise >= 70) {
+    strengths.push({
+      category: 'Expertise',
+      score: breakdown.expertise,
+      message: 'Clear expertise and knowledge shown',
+    });
+  }
+  
+  if (breakdown.authoritativeness >= 70) {
+    strengths.push({
+      category: 'Authoritativeness',
+      score: breakdown.authoritativeness,
+      message: 'Good authority signals present',
+    });
+  }
+  
+  if (breakdown.trustworthiness >= 70) {
+    strengths.push({
+      category: 'Trustworthiness',
+      score: breakdown.trustworthiness,
+      message: 'Strong trust signals detected',
+    });
+  }
+  
   return strengths;
 }
 
@@ -279,9 +309,42 @@ function identifyStrengths(breakdown) {
  */
 function identifyWeaknesses(breakdown) {
   const weaknesses = [];
-  if (breakdown.experience < 50) weaknesses.push('experience');
-  if (breakdown.expertise < 50) weaknesses.push('expertise');
-  if (breakdown.authoritativeness < 50) weaknesses.push('authoritativeness');
-  if (breakdown.trustworthiness < 50) weaknesses.push('trustworthiness');
+  
+  if (breakdown.experience < 70) {
+    weaknesses.push({
+      category: 'Experience',
+      score: breakdown.experience,
+      message: 'Limited first-hand experience shown',
+      priority: breakdown.experience < 50 ? 'high' : 'medium',
+    });
+  }
+  
+  if (breakdown.expertise < 70) {
+    weaknesses.push({
+      category: 'Expertise',
+      score: breakdown.expertise,
+      message: 'Expertise could be better demonstrated',
+      priority: breakdown.expertise < 50 ? 'high' : 'medium',
+    });
+  }
+  
+  if (breakdown.authoritativeness < 70) {
+    weaknesses.push({
+      category: 'Authoritativeness',
+      score: breakdown.authoritativeness,
+      message: 'Authority signals need strengthening',
+      priority: breakdown.authoritativeness < 50 ? 'high' : 'medium',
+    });
+  }
+  
+  if (breakdown.trustworthiness < 70) {
+    weaknesses.push({
+      category: 'Trustworthiness',
+      score: breakdown.trustworthiness,
+      message: 'Trust signals need improvement',
+      priority: breakdown.trustworthiness < 50 ? 'high' : 'medium',
+    });
+  }
+  
   return weaknesses;
 }
