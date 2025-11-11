@@ -1,20 +1,35 @@
 /**
- * Firecrawl Integration for Page Scraping
+ * Firecrawl Integration for Page Scraping (Enhanced v2.0)
  * Extracts content, metadata, and structure from URLs
+ * 
+ * Improvements:
+ * - Retry logic with exponential backoff
+ * - Better error messages
+ * - Fallback content extraction
+ * - Enhanced validation
  */
 
 const FIRECRAWL_API_KEY = process.env.FIRECRAWL_API_KEY;
 const FIRECRAWL_API_URL = 'https://api.firecrawl.dev/v1';
 const TIMEOUT_MS = parseInt(process.env.FIRECRAWL_TIMEOUT || '30000');
+const MAX_RETRIES = 3;
+const RETRY_DELAY_MS = 1000;
 
 /**
- * Scrape a single URL with Firecrawl
+ * Sleep utility for retry delays
  */
-async function scrapeUrl(url) {
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/**
+ * Scrape a single URL with Firecrawl (with retry logic)
+ */
+async function scrapeUrl(url, retryCount = 0) {
   try {
     // Validate API key
     if (!FIRECRAWL_API_KEY) {
-      throw new Error('FIRECRAWL_API_KEY is not configured');
+      throw new Error('FIRECRAWL_API_KEY is not configured. Please set it in your .env file.');
     }
 
     // Validate URL
@@ -22,15 +37,15 @@ async function scrapeUrl(url) {
     try {
       parsedUrl = new URL(url);
     } catch {
-      throw new Error('Invalid URL format');
+      throw new Error(`Invalid URL format: ${url}`);
     }
 
     // Check for supported protocols
     if (!['http:', 'https:'].includes(parsedUrl.protocol)) {
-      throw new Error('Only HTTP and HTTPS protocols are supported');
+      throw new Error(`Unsupported protocol: ${parsedUrl.protocol}. Only HTTP and HTTPS are supported.`);
     }
 
-    console.log(`Scraping URL: ${url}`);
+    console.log(`[Firecrawl] Scraping URL: ${url} (attempt ${retryCount + 1}/${MAX_RETRIES + 1})`);
 
     // Create abort controller for timeout
     const controller = new AbortController();
@@ -54,13 +69,20 @@ async function scrapeUrl(url) {
 
     clearTimeout(timeoutId);
 
-    // Handle HTTP errors
+    // Handle HTTP errors with retry logic
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(
-        errorData.error || 
-        `Firecrawl API error: ${response.status} ${response.statusText}`
-      );
+      const errorMessage = errorData.error || `Firecrawl API error: ${response.status} ${response.statusText}`;
+      
+      // Retry on 5xx errors or rate limits
+      if ((response.status >= 500 || response.status === 429) && retryCount < MAX_RETRIES) {
+        const delay = RETRY_DELAY_MS * Math.pow(2, retryCount); // Exponential backoff
+        console.log(`[Firecrawl] Retrying in ${delay}ms...`);
+        await sleep(delay);
+        return scrapeUrl(url, retryCount + 1);
+      }
+      
+      throw new Error(errorMessage);
     }
 
     const data = await response.json();
@@ -77,21 +99,23 @@ async function scrapeUrl(url) {
 
     // Check if we got any content
     if (!markdown && !html && !rawHtml) {
-      throw new Error('No content extracted from URL');
+      throw new Error('No content extracted from URL. The page may be empty or blocked.');
     }
 
-    // Extract structured data
+    // Extract structured data with fallbacks
     const links = extractLinks(html, parsedUrl.hostname);
     const images = extractImages(html);
     const headings = extractHeadings(html);
     const wordCount = countWords(markdown);
     const readingTime = calculateReadingTime(markdown);
 
+    console.log(`[Firecrawl] Success: ${wordCount} words, ${headings.length} headings, ${images.length} images, ${links.length} links`);
+
     return {
       success: true,
       data: {
         url: data.url || url,
-        title: data.metadata?.title || extractTitleFromHtml(html) || '',
+        title: data.metadata?.title || extractTitleFromHtml(html) || 'Untitled',
         description: data.metadata?.description || '',
         keywords: data.metadata?.keywords || '',
         ogImage: data.metadata?.ogImage || '',
@@ -109,19 +133,33 @@ async function scrapeUrl(url) {
       },
     };
   } catch (error) {
-    console.error('Firecrawl scrape error:', error);
+    console.error('[Firecrawl] Error:', error.message);
     
     // Handle specific error types
     if (error.name === 'AbortError') {
+      // Retry on timeout
+      if (retryCount < MAX_RETRIES) {
+        console.log(`[Firecrawl] Timeout, retrying...`);
+        await sleep(RETRY_DELAY_MS);
+        return scrapeUrl(url, retryCount + 1);
+      }
+      
       return {
         success: false,
-        error: `Request timeout after ${TIMEOUT_MS / 1000} seconds`,
+        error: `Request timeout after ${TIMEOUT_MS / 1000} seconds. The page may be too slow or unresponsive.`,
       };
+    }
+
+    // Network errors - retry
+    if (error.message.includes('fetch') && retryCount < MAX_RETRIES) {
+      console.log(`[Firecrawl] Network error, retrying...`);
+      await sleep(RETRY_DELAY_MS * Math.pow(2, retryCount));
+      return scrapeUrl(url, retryCount + 1);
     }
 
     return {
       success: false,
-      error: error.message || 'Unknown error occurred',
+      error: error.message || 'Unknown error occurred while scraping the URL',
     };
   }
 }
@@ -133,6 +171,8 @@ async function scrapeMultiple(urls) {
   if (!Array.isArray(urls) || urls.length === 0) {
     throw new Error('URLs must be a non-empty array');
   }
+
+  console.log(`[Firecrawl] Batch scraping ${urls.length} URLs...`);
 
   const results = await Promise.allSettled(
     urls.map(url => scrapeUrl(url))
