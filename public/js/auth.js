@@ -177,6 +177,54 @@ export async function signup(email, password, fullName) {
   }
 }
 
+// Request password reset
+export async function requestPasswordReset(email) {
+  try {
+    // Validate email
+    if (!email) {
+      return { 
+        success: false, 
+        error: 'Email is required' 
+      };
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return { 
+        success: false, 
+        error: 'Please enter a valid email address' 
+      };
+    }
+
+    const response = await fetch(`${API_BASE_URL}/auth/reset-password`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || 'Failed to send reset email');
+    }
+
+    console.log('✅ Password reset email sent');
+    return { 
+      success: true, 
+      message: data.message || 'Password reset email sent. Please check your inbox.' 
+    };
+    
+  } catch (error) {
+    console.error('❌ Password reset error:', error);
+    return { 
+      success: false, 
+      error: error.message || 'Failed to send password reset email' 
+    };
+  }
+}
+
 // Logout function
 export function logout() {
   console.log('🚪 Logging out user');
