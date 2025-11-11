@@ -2,13 +2,16 @@
   "name": "ranksmart",
   "version": "2.0.0",
   "description": "AI-Powered SEO Content Optimizer - Powered by ChatGPT-5 Brain 🧠",
-  "type": "module",
+  "type": "commonjs",
   "main": "api/index.js",
   "scripts": {
     "dev": "vercel dev",
     "build": "echo 'No build step required for static site'",
     "deploy": "vercel --prod",
-    "test": "node tests/mode1-test.js",
+    "test": "node tests/00-run-all-tests.js",
+    "test:gateway1": "node tests/01-firecrawl-test.js",
+    "test:gateway2": "node tests/02-eeat-scorer-test.js",
+    "test:gateway3": "node tests/03-technical-seo-test.js",
     "test:brain": "node tests/ai-brain-test.js"
   },
   "keywords": [
