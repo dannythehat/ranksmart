@@ -6,16 +6,7 @@
 const { scrapeUrl } = require('./firecrawl');
 const { calculateEEATScore } = require('./eeat-scorer');
 const { runTechnicalSEOAudit } = require('./technical-seo');
-
-// Import database utilities (will be converted to CommonJS)
-let saveAudit, verifyAuth;
-try {
-  const db = require('../utils/db');
-  saveAudit = db.saveAudit;
-  verifyAuth = db.verifyAuth;
-} catch (error) {
-  console.warn('Database utilities not available:', error.message);
-}
+const { saveAudit, verifyAuth } = require('../utils/db-commonjs');
 
 module.exports = async function handler(req, res) {
   // Enable CORS
@@ -43,11 +34,11 @@ module.exports = async function handler(req, res) {
 
     // Check if user is authenticated (optional for audit, required for saving)
     const authHeader = req.headers.authorization;
-    if (authHeader && verifyAuth) {
+    if (authHeader) {
       const authResult = await verifyAuth(authHeader);
       if (!authResult.error && authResult.user) {
         userId = authResult.user.id;
-        shouldSaveToDb = save_to_history && saveAudit;
+        shouldSaveToDb = save_to_history;
       }
     }
 
