@@ -9,6 +9,7 @@
     "build": "echo 'No build step required for static site'",
     "deploy": "vercel --prod",
     "test": "node tests/00-run-all-tests.js",
+    "test:verify": "node tests/verify-test-setup.js",
     "test:day5": "node tests/run-day5-tests.js",
     "test:gateway1": "node tests/01-firecrawl-test.js",
     "test:gateway2": "node tests/02-eeat-scorer-test.js",
