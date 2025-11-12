@@ -13,7 +13,7 @@ const scanHandler = require('../api/audit/scan.js');
 
 async function testIntegration() {
   console.log('🧪 TEST GATEWAY 4: Full Integration Test');
-  console.log('=' .repeat(50));
+  console.log('='.repeat(50));
   
   // Check for API key
   if (!process.env.FIRECRAWL_API_KEY) {
