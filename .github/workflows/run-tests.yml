@@ -1,0 +1,54 @@
+name: Run RankSmart Tests
+
+on:
+  workflow_dispatch:  # Manual trigger
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Verify test setup
+      run: npm run test:verify
+      continue-on-error: true
+      
+    - name: Run Gateway 1 - Firecrawl
+      run: npm run test:gateway1
+      env:
+        FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
+      continue-on-error: true
+      
+    - name: Run Gateway 2 - E-E-A-T Scorer
+      run: npm run test:gateway2
+      continue-on-error: true
+      
+    - name: Run Gateway 3 - Technical SEO
+      run: npm run test:gateway3
+      continue-on-error: true
+      
+    - name: Run Gateway 4 - Integration
+      run: npm run test:gateway4
+      env:
+        FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
+      continue-on-error: true
+      
+    - name: Run All Tests
+      run: npm test
+      env:
+        FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
