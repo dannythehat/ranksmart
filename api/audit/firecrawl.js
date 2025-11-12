@@ -7,7 +7,12 @@
  * - Better error messages
  * - Fallback content extraction
  * - Enhanced validation
+ * - Environment variable loading for local testing
  */
+
+// Load environment variables from .env file (for local testing)
+// This is safe to call multiple times and won't affect Vercel deployments
+require('dotenv').config();
 
 const FIRECRAWL_API_KEY = process.env.FIRECRAWL_API_KEY;
 const FIRECRAWL_API_URL = 'https://api.firecrawl.dev/v1';
