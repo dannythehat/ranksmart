@@ -11,7 +11,7 @@ async function testFirecrawl() {
   console.log('🧪 TEST GATEWAY 1: Firecrawl Module');
   console.log('=' .repeat(50));
   
-  const testUrl = 'https://example.com';
+  const testUrl = 'https://en.wikipedia.org/wiki/Search_engine_optimization';
   
   try {
     console.log(`\n📍 Testing URL: ${testUrl}`);
