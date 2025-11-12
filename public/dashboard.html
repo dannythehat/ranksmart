@@ -18,11 +18,13 @@
             border-radius: 8px;
             font-weight: 600;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: all 0.3s;
         }
         
         .logout-btn:hover {
             background: #dc2626;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
         }
         
         .auth-loading {
@@ -54,6 +56,100 @@
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
+        }
+
+        /* Enhanced Navigation */
+        .sidebar-link {
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-link:hover {
+            transform: translateX(4px);
+        }
+
+        .sidebar-link.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        /* Enhanced User Profile */
+        .user-info {
+            padding: 1rem;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 12px;
+            margin-bottom: 0.5rem;
+        }
+
+        .user-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.25rem;
+            margin-right: 0.75rem;
+        }
+
+        /* Enhanced Stats Cards */
+        .stat-card {
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Welcome Banner */
+        .welcome-banner {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 16px;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+        }
+
+        .welcome-banner h2 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.75rem;
+        }
+
+        .welcome-banner p {
+            margin: 0;
+            opacity: 0.9;
+        }
+
+        /* Quick Stats Overview */
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .quick-stat {
+            background: white;
+            padding: 1.25rem;
+            border-radius: 12px;
+            border: 2px solid #f0f0f0;
+            text-align: center;
+        }
+
+        .quick-stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 0.25rem;
+        }
+
+        .quick-stat-label {
+            font-size: 0.875rem;
+            color: #666;
         }
     </style>
 </head>
@@ -121,10 +217,12 @@
         
         <div class="sidebar-footer">
             <div class="user-info">
-                <div class="user-avatar" id="userAvatar">U</div>
-                <div class="user-details">
-                    <div class="user-name" id="userName">Loading...</div>
-                    <div class="user-plan" id="userPlan">Professional Plan</div>
+                <div style="display: flex; align-items: center;">
+                    <div class="user-avatar" id="userAvatar">U</div>
+                    <div class="user-details">
+                        <div class="user-name" id="userName">Loading...</div>
+                        <div class="user-plan" id="userPlan">Professional Plan</div>
+                    </div>
                 </div>
             </div>
             <button class="logout-btn" id="logoutBtn">
@@ -149,6 +247,32 @@
 
         <!-- Dashboard Content -->
         <div class="dashboard-content">
+            <!-- Welcome Banner -->
+            <div class="welcome-banner">
+                <h2>Welcome back, <span id="welcomeName">User</span>! 👋</h2>
+                <p>Here's what's happening with your SEO performance today</p>
+            </div>
+
+            <!-- Quick Stats Overview -->
+            <div class="quick-stats">
+                <div class="quick-stat">
+                    <div class="quick-stat-value" id="totalAudits">0</div>
+                    <div class="quick-stat-label">Total Audits</div>
+                </div>
+                <div class="quick-stat">
+                    <div class="quick-stat-value" id="avgScore">0</div>
+                    <div class="quick-stat-label">Average Score</div>
+                </div>
+                <div class="quick-stat">
+                    <div class="quick-stat-value" id="issuesFixed">0</div>
+                    <div class="quick-stat-label">Issues Fixed</div>
+                </div>
+                <div class="quick-stat">
+                    <div class="quick-stat-value" id="scansRemaining">0</div>
+                    <div class="quick-stat-label">Scans Remaining</div>
+                </div>
+            </div>
+
             <!-- Stats Cards -->
             <div class="stats-grid">
                 <div class="stat-card">
@@ -255,68 +379,11 @@
                             <th>Actions</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="recentAuditsTable">
                         <tr>
-                            <td>
-                                <div class="url-cell">
-                                    <span class="url-title">Best Online Casinos 2025</span>
-                                    <span class="url-link">example.com/best-casinos</span>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="score-badge score-high">92/100</div>
-                            </td>
-                            <td>
-                                <span class="badge badge-success">3 Fixed</span>
-                            </td>
-                            <td>2 hours ago</td>
-                            <td>
-                                <span class="badge badge-success">Complete</span>
-                            </td>
-                            <td>
-                                <button class="btn btn-small btn-outline">View Report</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div class="url-cell">
-                                    <span class="url-title">Poker Strategy Guide</span>
-                                    <span class="url-link">example.com/poker-guide</span>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="score-badge score-medium">76/100</div>
-                            </td>
-                            <td>
-                                <span class="badge badge-warning">8 Found</span>
-                            </td>
-                            <td>1 day ago</td>
-                            <td>
-                                <span class="badge badge-warning">In Progress</span>
-                            </td>
-                            <td>
-                                <button class="btn btn-small btn-outline">Continue</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div class="url-cell">
-                                    <span class="url-title">Sports Betting Tips</span>
-                                    <span class="url-link">example.com/betting-tips</span>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="score-badge score-low">64/100</div>
-                            </td>
-                            <td>
-                                <span class="badge badge-error">12 Found</span>
-                            </td>
-                            <td>3 days ago</td>
-                            <td>
-                                <span class="badge badge-gray">Pending</span>
-                            </td>
-                            <td>
-                                <button class="btn btn-small btn-outline">Fix Issues</button>
+                            <td colspan="6" style="text-align: center; padding: 2rem;">
+                                <div class="spinner" style="margin: 0 auto;"></div>
+                                <p style="margin-top: 1rem; color: #666;">Loading recent audits...</p>
                             </td>
                         </tr>
                     </tbody>
@@ -394,14 +461,18 @@
                 // Load user data
                 const userData = getUserData();
                 if (userData) {
-                    // Update user info in sidebar
+                    // Update user info in sidebar and welcome banner
                     const userName = userData.user_metadata?.full_name || userData.email?.split('@')[0] || 'User';
                     const userEmail = userData.email || '';
                     
                     document.getElementById('userName').textContent = userName;
+                    document.getElementById('welcomeName').textContent = userName;
                     document.getElementById('userAvatar').textContent = userName.charAt(0).toUpperCase();
                     
                     console.log('✅ User authenticated:', userEmail);
+                    
+                    // Load dashboard data
+                    loadDashboardData();
                 }
             }
         })();
@@ -412,6 +483,88 @@
                 logout();
             }
         });
+
+        // Load dashboard data
+        async function loadDashboardData() {
+            try {
+                // Update quick stats (placeholder data for now)
+                document.getElementById('totalAudits').textContent = '24';
+                document.getElementById('avgScore').textContent = '87';
+                document.getElementById('issuesFixed').textContent = '156';
+                document.getElementById('scansRemaining').textContent = '176';
+
+                // Load recent audits (placeholder for now)
+                const recentAuditsHTML = `
+                    <tr>
+                        <td>
+                            <div class="url-cell">
+                                <span class="url-title">Best Online Casinos 2025</span>
+                                <span class="url-link">example.com/best-casinos</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="score-badge score-high">92/100</div>
+                        </td>
+                        <td>
+                            <span class="badge badge-success">3 Fixed</span>
+                        </td>
+                        <td>2 hours ago</td>
+                        <td>
+                            <span class="badge badge-success">Complete</span>
+                        </td>
+                        <td>
+                            <button class="btn btn-small btn-outline">View Report</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="url-cell">
+                                <span class="url-title">Poker Strategy Guide</span>
+                                <span class="url-link">example.com/poker-guide</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="score-badge score-medium">76/100</div>
+                        </td>
+                        <td>
+                            <span class="badge badge-warning">8 Found</span>
+                        </td>
+                        <td>1 day ago</td>
+                        <td>
+                            <span class="badge badge-warning">In Progress</span>
+                        </td>
+                        <td>
+                            <button class="btn btn-small btn-outline">Continue</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="url-cell">
+                                <span class="url-title">Sports Betting Tips</span>
+                                <span class="url-link">example.com/betting-tips</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="score-badge score-low">64/100</div>
+                        </td>
+                        <td>
+                            <span class="badge badge-error">12 Found</span>
+                        </td>
+                        <td>3 days ago</td>
+                        <td>
+                            <span class="badge badge-gray">Pending</span>
+                        </td>
+                        <td>
+                            <button class="btn btn-small btn-outline">Fix Issues</button>
+                        </td>
+                    </tr>
+                `;
+                
+                document.getElementById('recentAuditsTable').innerHTML = recentAuditsHTML;
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+            }
+        }
     </script>
     <script src="js/api.js"></script>
     <script src="js/dashboard.js"></script>
