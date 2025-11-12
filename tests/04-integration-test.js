@@ -25,7 +25,7 @@ async function testIntegration() {
     return null; // null means skipped, not failed
   }
   
-  const testUrl = 'https://example.com';
+  const testUrl = 'https://en.wikipedia.org/wiki/Search_engine_optimization';
   
   // Mock request and response objects
   const mockReq = {
