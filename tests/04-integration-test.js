@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 /**
  * TEST GATEWAY 4: Integration Test
  * Tests the complete scan endpoint with all modules integrated
